@@ -1,8 +1,9 @@
 output "app_server_public_dns" {
   description = "Private DNS name of the EC2 instance."
-  value       = aws_instance.app_server.private_dns
+  value       = [for instance in aws_instance.app_server : instance.private_dns]
 }
 
 output "db_server_private_dns" {
-  value = aws_instance.db_server.private_dns
+  description = "Private DNS name of the EC2 instance."
+  value       = [for instance in aws_instance.db_server : instance.private_dns]
 }

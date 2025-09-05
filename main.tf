@@ -53,6 +53,7 @@ resource "aws_subnet" "private" {
 
 # create virtual machine (1) or aws_instance
 resource "aws_instance" "app_server" {
+    count = var.app_server_count
     ami = data.aws_ami.windows.id
     instance_type = var.instance_type
     subnet_id = module.vpc.private_subnets[0]
@@ -65,6 +66,7 @@ resource "aws_instance" "app_server" {
 
 #create virtual machine(2) or aws_instance
 resource "aws_instance" "db_server" {
+  count = var.db_server_count
   ami = data.aws_ami.windows.id
   instance_type = var.instance_type
   subnet_id = module.vpc.private_subnets[1]

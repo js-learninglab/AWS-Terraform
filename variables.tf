@@ -9,3 +9,13 @@ variable "instance_type" {
   type        = string
   default     = "t2.micro"
 }
+
+variable "app_server_count" {
+  description = "number of app_server instances"
+  default = 2
+}
+
+variable "db_server_count" {
+  description = "number of db_server instances"
+  default = 2
+}
