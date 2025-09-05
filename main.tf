@@ -71,6 +71,6 @@ resource "aws_instance" "db_server" {
   associate_public_ip_address = false
 
   tags = {
-        name = var.instance_name
+        Name = var.instance_name
   }
 }

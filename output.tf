@@ -1,4 +1,4 @@
-output "instance_hostname" {
+output "app_server_public_dns" {
   description = "Private DNS name of the EC2 instance."
   value       = aws_instance.app_server.private_dns
 }
