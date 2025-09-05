@@ -51,7 +51,7 @@ resource "aws_subnet" "private" {
 }
 */
 
-# create virtual machine or aws_instance
+# create virtual machine (1) or aws_instance
 resource "aws_instance" "app_server" {
     ami = data.aws_ami.windows.id
     instance_type = var.instance_type
@@ -61,4 +61,16 @@ resource "aws_instance" "app_server" {
     tags = {
         Name = var.instance_name
     }
+}
+
+#create virtual machine(2) or aws_instance
+resource "aws_instance" "db_server" {
+  ami = data.aws_ami.windows.id
+  instance_type = var.instance_type
+  subnet_id = module.vpc.private_subnets[1]
+  associate_public_ip_address = false
+
+  tags = {
+        name = var.instance_name
+  }
 }
