@@ -2,6 +2,12 @@ provider "aws" {
     region = "us-west-2"
 }
 
+/*
+provider "google"{
+    project = "GCP-terraform"
+    region = ""
+
+*/}
 data "aws_ami" "windows" {
     most_recent = true
 
