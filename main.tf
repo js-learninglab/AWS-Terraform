@@ -7,7 +7,7 @@ provider "google"{
     project = "GCP-terraform"
     region = "US-central1"
 }
-
+*/
 data "aws_ami" "windows" {
     most_recent = true
 
