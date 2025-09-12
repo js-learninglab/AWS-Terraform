@@ -33,6 +33,30 @@ module "vpc" {
   enable_dns_hostnames    = true
 }
 
+module "vpc2" {
+  source = "terraform-google-modules/network/google"
+  version ="12.0"
+
+  project = "GCP_terraform"
+  network_name = "main"
+  ip_cidr_range = "11.0.0.0/16"
+
+  subnets = [
+    
+  {
+    subnet_name = "gcp_app_subnet"
+    subnet_ip = "11.0.1.0/24"
+    subnet_region = "us-west1-a"
+  },
+  {
+    subnet_name = "gcp_db_subnet"
+    subnet_ip = "11.0.2.0/24"
+    subnet_region = "us-west1-b"
+  }
+  ]
+}
+
+
 # create virtual network
 /*
 resource "aws_vpc" "main" {
@@ -59,26 +83,46 @@ resource "aws_subnet" "private" {
 
 # create virtual machine (1) or aws_instance
 resource "aws_instance" "app_server" {
-    count = var.app_server_count
+    count = var.AWS_app_server_count
     ami = data.aws_ami.windows.id
-    instance_type = var.instance_type
+    instance_type = var.AWS_instance_type
     subnet_id = module.vpc.private_subnets[0]
     associate_public_ip_address = false
 
     tags = {
-        Name = var.instance_name
+        Name = var.AWS_APP_instance_name
     }
 }
 
 #create virtual machine(2) or aws_instance
 resource "aws_instance" "db_server" {
-  count = var.db_server_count
+  count = var.AWS_db_server_count
   ami = data.aws_ami.windows.id
-  instance_type = var.instance_type
+  instance_type = var.AWS_instance_type
   subnet_id = module.vpc.private_subnets[1]
   associate_public_ip_address = false
 
   tags = {
-        Name = var.instance_name
+        Name = var.AWS_DB_instance_name
   }
+}
+
+#create virtual machine (1) or google_compute_instance
+resource "google_compute_instance" "gcp_app_server" {
+  name  = var.gcp_instance_name
+  count = var.GCP_app_server_count
+  machine_type = var.GCP_instance_type
+  subnet_id = module.gcp_app_subnet
+
+  tags = "var.GCP_APP_instance_name"
+}
+
+#create virtual machine (2) or google_compute_instance
+resource "google_compute_instance" "gcp_db_server" {
+  name  = var.gcp_DB_instance_name
+  count = var.GCP_db_server_count
+  machine_type = var.GCP_instance_type
+  subnet_id = module.gcp_db_subnet
+
+  tags = "var.GCP_DB_instance_name"
 }

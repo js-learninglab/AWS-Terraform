@@ -1,21 +1,56 @@
-variable "instance_name" {
+variable "AWS_APP_instance_name" {
   description = "Value of the EC2 instance's Name tag."
   type        = string
-  default     = "learn-terraform"
+  default     = "AWP-APP-terraform"
 }
 
-variable "instance_type" {
+variable "AWS_DB_instance_name" {
+  description = "Value of the EC2 instance's Name tag."
+  type        = string
+  default     = "AWP-DB-terraform"
+}
+
+variable "AWS_instance_type" {
   description = "The EC2 instance's type."
   type        = string
   default     = "t2.micro"
 }
 
-variable "app_server_count" {
+variable "AWS_app_server_count" {
   description = "number of app_server instances"
   default = 2
 }
 
-variable "db_server_count" {
+variable "AWS_db_server_count" {
+  description = "number of db_server instances"
+  default = 2
+}
+
+#GCP Variables
+variable "gcp_APP_instance_name" {
+  description = "value of the compute engine's name"
+  type        = string
+  default     = "GCP-APP-terraform"
+}
+
+variable "gcp_DB_instance_name" {
+  description = "value of the compute engine's name"
+  type        = string
+  default     = "GCP-DB-terraform"
+}
+
+variable "GCP_instance_type" {
+  description = "The EC2 instance's type."
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "GCP_app_server_count" {
+  description = "number of app_server instances"
+  default = 2
+}
+
+variable "GCP_db_server_count" {
   description = "number of db_server instances"
   default = 2
 }
