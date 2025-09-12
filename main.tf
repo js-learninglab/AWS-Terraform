@@ -4,7 +4,7 @@ provider "aws" {
 
 
 provider "google"{
-    project = "GCP-terraform"
+    project = "GCP-terraform-471706"
     region = "US-central1"
 }
 
@@ -37,21 +37,21 @@ module "vpc2" {
   source = "terraform-google-modules/network/google"
   version ="12.0"
 
-  project = "GCP_terraform"
+  project_id = "GCP-terraform-471706"
   network_name = "main"
-  ip_cidr_range = "11.0.0.0/16"
+  # ip_cidr_range = "11.0.0.0/16"
 
   subnets = [
     
   {
     subnet_name = "gcp_app_subnet"
     subnet_ip = "11.0.1.0/24"
-    subnet_region = "us-west1-a"
+    subnet_region = "us-west1"
   },
   {
     subnet_name = "gcp_db_subnet"
     subnet_ip = "11.0.2.0/24"
-    subnet_region = "us-west1-b"
+    subnet_region = "us-west1"
   }
   ]
 }
@@ -109,20 +109,26 @@ resource "aws_instance" "db_server" {
 
 #create virtual machine (1) or google_compute_instance
 resource "google_compute_instance" "gcp_app_server" {
-  name  = var.gcp_instance_name
+  name  = var.GCP_app_instance_name
   count = var.GCP_app_server_count
   machine_type = var.GCP_instance_type
-  subnet_id = module.gcp_app_subnet
-
+  
+  network_interface{
+  network = module.vpc2.main
+  subnetwork = module.vpc2.gcp_app_subnet
+    }
   tags = "var.GCP_APP_instance_name"
 }
 
 #create virtual machine (2) or google_compute_instance
 resource "google_compute_instance" "gcp_db_server" {
-  name  = var.gcp_DB_instance_name
+  name  = var.GCP_db_instance_name
   count = var.GCP_db_server_count
   machine_type = var.GCP_instance_type
-  subnet_id = module.gcp_db_subnet
 
+  network_interface {
+  network = module.vpc2.main
+  subnetwork = module.vpc2.gcp_db_subnet
+  }
   tags = "var.GCP_DB_instance_name"
 }

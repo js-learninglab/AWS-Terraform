@@ -27,13 +27,13 @@ variable "AWS_db_server_count" {
 }
 
 #GCP Variables
-variable "gcp_APP_instance_name" {
+variable "GCP_app_instance_name" {
   description = "value of the compute engine's name"
   type        = string
   default     = "GCP-APP-terraform"
 }
 
-variable "gcp_DB_instance_name" {
+variable "GCP_db_instance_name" {
   description = "value of the compute engine's name"
   type        = string
   default     = "GCP-DB-terraform"
