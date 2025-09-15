@@ -44,12 +44,12 @@ module "vpc2" {
   subnets = [
     
   {
-    subnet_name = "gcp_app_subnet"
+    subnet_name = "gcp-app-subnet"
     subnet_ip = "11.0.1.0/24"
     subnet_region = "us-west1"
   },
   {
-    subnet_name = "gcp_db_subnet"
+    subnet_name = "gcp-db-subnet"
     subnet_ip = "11.0.2.0/24"
     subnet_region = "us-west1"
   }
@@ -108,27 +108,43 @@ resource "aws_instance" "db_server" {
 }
 
 #create virtual machine (1) or google_compute_instance
-resource "google_compute_instance" "gcp_app_server" {
-  name  = var.GCP_app_instance_name
-  count = var.GCP_app_server_count
-  machine_type = var.GCP_instance_type
+resource "google_compute_instance" "gcp-app-server" {
+  name  = var.GCP-app-instance-name
+  count = var.GCP-app-server-count
+  machine_type = var.GCP-instance-type
   
   network_interface{
-  network = module.vpc2.main
-  subnetwork = module.vpc2.gcp_app_subnet
+  network = module.vpc2.network_id
+  subnetwork = module.vpc2.subnets["us-west1/gcp-app-subnet"].id
     }
-  tags = "var.GCP_APP_instance_name"
+
+  boot_disk {
+    initialize_params {
+      image = "windows-cloud/windows-2022"
+
+      size = 50
+    }
+  }
+  tags =[var.GCP-app-instance-name]
 }
 
 #create virtual machine (2) or google_compute_instance
-resource "google_compute_instance" "gcp_db_server" {
-  name  = var.GCP_db_instance_name
-  count = var.GCP_db_server_count
-  machine_type = var.GCP_instance_type
+resource "google_compute_instance" "gcp-db-server" {
+  name  = var.GCP-db-instance-name
+  count = var.GCP-db-server-count
+  machine_type = var.GCP-instance-type
 
   network_interface {
-  network = module.vpc2.main
-  subnetwork = module.vpc2.gcp_db_subnet
+  network = module.vpc2.network_id
+  subnetwork = module.vpc2.subnets["us-west1/gcp-db-subnet"].id
   }
-  tags = "var.GCP_DB_instance_name"
+
+  boot_disk {
+    initialize_params {
+      image = "windows-cloud/windows-2022"
+
+      size = 50
+    }
+  }
+  tags = [var.GCP-db-instance-name]
 }
