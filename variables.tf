@@ -26,31 +26,31 @@ variable "AWS_db_server_count" {
   default = 2
 }
 
-#GCP Variables
-variable "GCP-app-instance-name" {
+#gcp Variables
+variable "gcp_app_instance_name" {
   description = "value of the compute engine's name"
   type        = string
-  default     = "GCP-APP-terraform"
+  default     = "gcp-app-terraform"
 }
 
-variable "GCP-db-instance-name" {
+variable "gcp_db_instance_name" {
   description = "value of the compute engine's name"
   type        = string
-  default     = "GCP-DB-terraform"
+  default     = "gcp-db-terraform"
 }
 
-variable "GCP-instance-type" {
+variable "gcp_instance_type" {
   description = "The EC2 instance's type."
   type        = string
   default     = "t2.micro"
 }
 
-variable "GCP-app-server-count" {
+variable "gcp_app_server_count" {
   description = "number of app_server instances"
   default = 2
 }
 
-variable "GCP-db-server-count" {
+variable "gcp_db_server_count" {
   description = "number of db_server instances"
   default = 2
 }

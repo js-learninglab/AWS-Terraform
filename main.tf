@@ -5,7 +5,7 @@ provider "aws" {
 
 provider "google"{
     project = "GCP-terraform-471706"
-    region = "US-central1"
+    region = "us-central1"
 }
 
 data "aws_ami" "windows" {
@@ -108,11 +108,12 @@ resource "aws_instance" "db_server" {
 }
 
 #create virtual machine (1) or google_compute_instance
-resource "google_compute_instance" "gcp-app-server" {
-  name  = var.GCP-app-instance-name
-  count = var.GCP-app-server-count
-  machine_type = var.GCP-instance-type
-  
+resource "google_compute_instance" "gcp_app_server" {
+  name  = var.gcp_app_instance_name
+  count = var.gcp_app_server_count
+  machine_type = var.gcp_instance_type
+  zone = "us-west1"
+
   network_interface{
   network = module.vpc2.network_id
   subnetwork = module.vpc2.subnets["us-west1/gcp-app-subnet"].id
@@ -125,15 +126,16 @@ resource "google_compute_instance" "gcp-app-server" {
       size = 50
     }
   }
-  tags =[var.GCP-app-instance-name]
+  tags =[var.gcp_app_instance_name]
 }
 
 #create virtual machine (2) or google_compute_instance
-resource "google_compute_instance" "gcp-db-server" {
-  name  = var.GCP-db-instance-name
-  count = var.GCP-db-server-count
-  machine_type = var.GCP-instance-type
-
+resource "google_compute_instance" "gcp_db_server" {
+  name  = var.gcp_db_instance_name
+  count = var.gcp_db_server_count
+  machine_type = var.gcp_instance_type
+  zone = "us-west1"
+  
   network_interface {
   network = module.vpc2.network_id
   subnetwork = module.vpc2.subnets["us-west1/gcp-db-subnet"].id
@@ -146,5 +148,5 @@ resource "google_compute_instance" "gcp-db-server" {
       size = 50
     }
   }
-  tags = [var.GCP-db-instance-name]
+  tags = [var.gcp_db_instance_name]
 }
