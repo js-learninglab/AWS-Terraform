@@ -97,6 +97,24 @@ variable "aws_db_server_count" {
   default = 2
 }
 
+variable "aws_tags_owner" {
+  description = "The owner tag for resources."
+  type        = string
+  default     = "js.learninglab"
+}
+
+variable "aws_tags_environment" {
+  description = "The environment tag for resources."
+  type        = string
+  default     = "Dev"
+}
+
+variable "aws_tags_project" {
+  description = "The project tag for resources."
+  type        = string
+  default     = "Learning Terraform"
+}
+
 #####################
 ####GCP Variables####
 #####NETWORKING######

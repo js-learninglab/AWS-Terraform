@@ -66,9 +66,7 @@ resource "aws_instance" "app_server" {
     subnet_id = module.vpc.private_subnets[0]
     associate_public_ip_address = false
 
-    tags = {
-        Name = var.aws_app_instance_name
-    }
+    tags = merge(local.common_tags, { Name = "app-server-${count.index + 1}" })
 }
 
 #create virtual machine(2) or aws_instance
@@ -79,9 +77,7 @@ resource "aws_instance" "db_server" {
   subnet_id = module.vpc.private_subnets[1]
   associate_public_ip_address = false
 
-  tags = {
-        Name = var.aws_db_instance_name
-  }
+  tags = merge(local.common_tags, { Name = "db-server-${count.index + 1}" })
 }
 
 #create virtual machine (1) or google_compute_instance
@@ -98,7 +94,7 @@ resource "google_compute_instance" "gcp_app_server" {
 
   boot_disk {
     initialize_params {
-      image = var.gcp_image_project + "/" + var.gcp_image_family
+      image = "${var.gcp_image_project}/${var.gcp_image_family}"
 
       size = var.gcp_boot_disk_size
     }
@@ -120,7 +116,7 @@ resource "google_compute_instance" "gcp_db_server" {
 
   boot_disk {
     initialize_params {
-      image = var.gcp_image_project + "/" + var.gcp_image_family
+      image = "${var.gcp_image_project}/${var.gcp_image_family}"
 
       size = var.gcp_boot_disk_size
     }
