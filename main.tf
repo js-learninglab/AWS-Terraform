@@ -1,11 +1,14 @@
 provider "aws" {
-    region = "us-west-2"
+    access_key = var.aws_access_key
+    secret_key = var.aws_secret_key
+    region = var.aws_region
 }
 
 
 provider "google"{
+    credentials = var.gcp_credentials
     project = "GCP-terraform-471706"
-    region = "us-central1"
+    region = var.gcp_region
 }
 
 data "aws_ami" "windows" {
@@ -23,14 +26,12 @@ module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.19.0"
 
-  name = "main"
-  cidr = "10.0.0.0/16"
-
-  azs             = ["us-west-2a", "us-west-2b", "us-west-2c"]
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
+  name            = "main"
+  cidr            = var.aws_vpc_cidr
+  azs             = var.aws_vpc_azs
+  private_subnets = var.aws_vpc_private_subnets
   #public_subnets  = ["10.0.101.0/24"]
-
-  enable_dns_hostnames    = true
+  enable_dns_hostnames    = var.aws_dns_hostnames
 }
 
 module "vpc2" {
@@ -56,54 +57,29 @@ module "vpc2" {
   ]
 }
 
-
-# create virtual network
-/*
-resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
-  tags = {
-    Name = "main-vpc"
-  }
-}
-*/
-
-# create private subnet
-/*
-resource "aws_subnet" "private" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-west-2a"
-  map_public_ip_on_launch = false  # Ensures no public IP is auto-assigned
-
-  tags = {
-    Name = "Terraform private-subnet"
-  }
-}
-*/
-
 # create virtual machine (1) or aws_instance
 resource "aws_instance" "app_server" {
-    count = var.AWS_app_server_count
+    count = var.aws_app_server_count
     ami = data.aws_ami.windows.id
-    instance_type = var.AWS_instance_type
+    instance_type = var.aws_instance_type
     subnet_id = module.vpc.private_subnets[0]
     associate_public_ip_address = false
 
     tags = {
-        Name = var.AWS_APP_instance_name
+        Name = var.aws_app_instance_name
     }
 }
 
 #create virtual machine(2) or aws_instance
 resource "aws_instance" "db_server" {
-  count = var.AWS_db_server_count
+  count = var.aws_db_server_count
   ami = data.aws_ami.windows.id
-  instance_type = var.AWS_instance_type
+  instance_type = var.aws_instance_type
   subnet_id = module.vpc.private_subnets[1]
   associate_public_ip_address = false
 
   tags = {
-        Name = var.AWS_DB_instance_name
+        Name = var.aws_db_instance_name
   }
 }
 
