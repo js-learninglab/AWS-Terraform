@@ -1,12 +1,12 @@
 provider "aws" {
-    access_key = var.aws_access_key
-    secret_key = var.aws_secret_key
+    #access_key = var.aws_access_key
+    #secret_key = var.aws_secret_key
     region = var.aws_region
 }
 
 
 provider "google"{
-    credentials = var.gcp_credentials
+    #credentials = var.gcp_credentials
     project = "GCP-terraform-471706"
     region = var.gcp_region
 }
@@ -42,17 +42,18 @@ module "vpc2" {
   network_name = "main"
   # ip_cidr_range = "11.0.0.0/16"
 
+ 
   subnets = [
     
   {
     subnet_name = "gcp-app-subnet"
-    subnet_ip = "11.0.1.0/24"
-    subnet_region = "us-west1"
+    subnet_ip = var.gcp_vpc_subnets[0]
+    subnet_region = var.gcp_vpc_region
   },
   {
     subnet_name = "gcp-db-subnet"
-    subnet_ip = "11.0.2.0/24"
-    subnet_region = "us-west1"
+    subnet_ip = var.gcp_vpc_subnets[1]
+    subnet_region = var.gcp_vpc_region
   }
   ]
 }
@@ -88,7 +89,7 @@ resource "google_compute_instance" "gcp_app_server" {
   name  = var.gcp_app_instance_name
   count = var.gcp_app_server_count
   machine_type = var.gcp_instance_type
-  zone = "us-west1"
+  zone = var.gcp_vpc_region
 
   network_interface{
   network = module.vpc2.network_id
@@ -97,9 +98,9 @@ resource "google_compute_instance" "gcp_app_server" {
 
   boot_disk {
     initialize_params {
-      image = "windows-cloud/windows-2022"
+      image = var.gcp_image_project + "/" + var.gcp_image_family
 
-      size = 50
+      size = var.gcp.gcp_boot_disk_size
     }
   }
   tags =[var.gcp_app_instance_name]
@@ -110,7 +111,7 @@ resource "google_compute_instance" "gcp_db_server" {
   name  = var.gcp_db_instance_name
   count = var.gcp_db_server_count
   machine_type = var.gcp_instance_type
-  zone = "us-west1"
+  zone = var.gcp_vpc_region
   
   network_interface {
   network = module.vpc2.network_id
@@ -119,9 +120,9 @@ resource "google_compute_instance" "gcp_db_server" {
 
   boot_disk {
     initialize_params {
-      image = "windows-cloud/windows-2022"
+      image = var.gcp_image_project + "/" + var.gcp_image_family
 
-      size = 50
+      size = var.gcp_boot_disk_size
     }
   }
   tags = [var.gcp_db_instance_name]
