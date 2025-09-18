@@ -100,7 +100,7 @@ resource "google_compute_instance" "gcp_app_server" {
     initialize_params {
       image = var.gcp_image_project + "/" + var.gcp_image_family
 
-      size = var.gcp.gcp_boot_disk_size
+      size = var.gcp_boot_disk_size
     }
   }
   tags =[var.gcp_app_instance_name]
