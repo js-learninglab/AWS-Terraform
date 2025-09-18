@@ -34,6 +34,11 @@ variable "gcp_credentials" {
 }
 */
 
+variable "gcp_region" {
+  type = string
+  default = "us-west1"
+  description = "GCP us-west1 region"
+}
 #####################
 ####AWS Variables####
 #####NETWORKING######
