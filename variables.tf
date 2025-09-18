@@ -19,8 +19,8 @@ variable "aws_secret_key" {
 */
 
 variable "aws_region" {
-  type = string
-  default = "us-west-2"
+  type        = string
+  default     = "us-west-2"
   description = "AWS us-west-2 region"
 }
 /*
@@ -35,8 +35,8 @@ variable "gcp_credentials" {
 */
 
 variable "gcp_region" {
-  type = string
-  default = "us-west1"
+  type        = string
+  default     = "us-west1"
   description = "GCP us-west1 region"
 }
 #####################
@@ -65,7 +65,7 @@ variable "aws_dns_hostnames" {
   description = "A boolean flag to enable/disable DNS hostnames in the VPC."
   type        = bool
   default     = true
-} 
+}
 
 #####Resources#####
 
@@ -89,12 +89,12 @@ variable "aws_instance_type" {
 
 variable "aws_app_server_count" {
   description = "number of app_server instances"
-  default = 2
+  default     = 2
 }
 
 variable "aws_db_server_count" {
   description = "number of db_server instances"
-  default = 2
+  default     = 2
 }
 
 variable "aws_tags_owner" {
@@ -173,10 +173,10 @@ variable "gcp_boot_disk_size" {
 
 variable "gcp_app_server_count" {
   description = "number of app_server instances"
-  default = 2
+  default     = 2
 }
 
 variable "gcp_db_server_count" {
   description = "number of db_server instances"
-  default = 2
+  default     = 2
 }
