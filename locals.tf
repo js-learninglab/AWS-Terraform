@@ -5,3 +5,9 @@ locals {
     Project     = "${var.aws_tags_owner}.${var.aws_tags_project}"
   }
 }
+
+
+resource "random_integer" "s3" {
+  min = 10000
+  max = 99999
+}
