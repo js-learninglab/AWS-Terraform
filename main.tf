@@ -73,6 +73,14 @@ resource "aws_subnet" "public_subnet1" {
   tags = merge(local.common_tags, { Name = "public-subnet1" })
 }
 
+resource "aws_subnet" "public_subnet2" {
+  vpc_id            = aws_vpc.igw.id
+  cidr_block        = var.aws_vpc_public_subnets[1]
+  availability_zone = var.aws_vpc_azs[1]
+
+  tags = merge(local.common_tags, { Name = "public-subnet2" })
+}
+
 #create aws routing table
 resource "aws_route_table" "web_rt" {
   vpc_id = aws_vpc.igw.id
