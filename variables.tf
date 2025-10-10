@@ -49,6 +49,12 @@ variable "aws_vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
+variable "aws_vpc_public_subnets" {
+  description = "A list of CIDR blocks for the public subnets."
+  type        = list(string)
+  default     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+}
+
 variable "aws_vpc_azs" {
   description = "A list of availability zones in the region."
   type        = list(string)
@@ -58,7 +64,7 @@ variable "aws_vpc_azs" {
 variable "aws_vpc_private_subnets" {
   description = "A list of CIDR blocks for the private subnets."
   type        = list(string)
-  default     = ["10.0.1.0/24", "10.0.2.0/24"]
+  default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
 }
 
 variable "aws_dns_hostnames" {
@@ -67,12 +73,18 @@ variable "aws_dns_hostnames" {
   default     = true
 }
 
+variable "aws_web_http_port" {
+  description = "The HTTP port for the web server security group."
+  type        = number
+  default     = 80
+}
+
 #####Resources#####
 
 variable "aws_app_instance_name" {
   description = "Value of the EC2 instance's Name tag."
   type        = string
-  default     = "aws-app-terraform"
+  default     = "aws-app-terraform-${count.index}"
 }
 
 variable "aws_db_instance_name" {
@@ -94,6 +106,11 @@ variable "aws_app_server_count" {
 
 variable "aws_db_server_count" {
   description = "number of db_server instances"
+  default     = 2
+}
+
+variable "aws_web_server_count" {
+  description = "number of web_server instances"
   default     = 2
 }
 

@@ -58,6 +58,65 @@ module "vpc2" {
   ]
 }
 
+#create aws internet gateway
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.igw.id
+  tags = merge(local.common_tags, { Name = "aws-igw" })
+}
+
+#create aws public subnet
+resource "aws_subnet" "public_subnet1" {
+  vpc_id            = aws_vpc.igw.id
+  cidr_block        = var.aws_vpc_public_subnets[0]
+  availability_zone = var.aws_vpc_azs[0]
+
+  tags = merge(local.common_tags, { Name = "public-subnet1" })
+}
+
+#create aws routing table
+resource "aws_route_table" "web_rt" {
+  vpc_id = aws_vpc.igw.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  tags = merge(local.common_tags, { Name = "public-rt" })
+}
+
+#associate aws routing table with public subnet
+resource "aws_route_table_association" "web_subnet1" {
+  subnet_id      = aws_subnet.public_subnet1.id
+  route_table_id = aws_route_table.web_rt.id
+}
+
+# Security group#
+# Nginx security group
+resource "aws_security_group" "nginx_sg" {
+  name        = "nginx_sg"
+  description = "Allow HTTP and HTTPS traffic"
+  vpc_id      = aws_vpc.igw.id
+
+  # HTTP access allow access from anywhere
+  ingress {
+    description = "HTTP from VPC"
+    from_port   = var.aws_web_http_port
+    to_port     = var.aws_web_http_port
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/8"]
+  }
+
+# outbound internet access
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}   
+
 # create virtual machine (1) or aws_instance
 resource "aws_instance" "app_server" {
   count                       = var.aws_app_server_count
@@ -78,6 +137,22 @@ resource "aws_instance" "db_server" {
   associate_public_ip_address = false
 
   tags = merge(local.common_tags, { Name = "db-server-${count.index + 1}" })
+}
+
+#create virtual machine (3) or aws_instance
+resource "aws_instance" "web_server" {
+  count                       = var.aws_web_server_count
+  ami                         = data.aws_ami.linux.id
+  instance_type               = var.aws_instance_type
+  subnet_id                   = module.vpc.private_subnets[2]
+  vpc_security_group_ids      = [aws_security_group.nginx_sg.id]
+  associate_public_ip_address = true
+  iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
+
+  tags = merge(local.common_tags, { Name = "web-server-${count.index + 1}"})
+
+  user_data = templatefile("./templates/startupscript.tpl")
+
 }
 
 #create virtual machine (1) or google_compute_instance
