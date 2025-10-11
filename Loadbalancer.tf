@@ -47,7 +47,7 @@ resource "aws_lb_target_group_attachment" "web_lb_tg_attachment1" {
   port            = var.aws_web_http_port
 }
 
-resource "Aws_lb_target_group_attachment" "web_lb_tg_attachment2" {
+resource "aws_lb_target_group_attachment" "web_lb_tg_attachment2" {
   target_group_arn = aws_lb_target_group.web_lb_tg.arn
   target_id        = aws_instance.web_server2.id
   port            = var.aws_web_http_port

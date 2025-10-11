@@ -84,7 +84,7 @@ variable "aws_web_http_port" {
 variable "aws_app_instance_name" {
   description = "Value of the EC2 instance's Name tag."
   type        = string
-  default     = "aws-app-terraform-${count.index}"
+  default     = "aws-app-terraform"
 }
 
 variable "aws_db_instance_name" {
