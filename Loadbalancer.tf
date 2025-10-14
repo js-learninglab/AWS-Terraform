@@ -41,15 +41,17 @@ resource "aws_lb_listener" "web_lb_listener" {
 }
 
 # aws_lb_target_group_attachment
-resource "aws_lb_target_group_attachment" "web_lb_tg_attachment1" {
+resource "aws_lb_target_group_attachment" "web_lb_tg_attachment" {
+  count            = length(aws_instance.web_server[*].id)
   target_group_arn = aws_lb_target_group.web_lb_tg.arn
   target_id        = aws_instance.web_server[count.index].id
   port             = var.aws_web_http_port
 }
 
-
+/*
 resource "aws_lb_target_group_attachment" "web_lb_tg_attachment2" {
   target_group_arn = aws_lb_target_group.web_lb_tg.arn
   target_id        = aws_instance.web_server2.id
   port             = var.aws_web_http_port
 }
+*/

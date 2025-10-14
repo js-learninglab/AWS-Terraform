@@ -8,7 +8,12 @@ locals {
   s3_bucket_name = "js-learninglab-terraform-${random_integer.s3.result}"
 }
 
-
+locals {
+  web_subnets = [
+    module.vpc.public_subnets[2],
+    module.vpc.public_subnets[3]
+  ]
+}
 resource "random_integer" "s3" {
   min = 10000
   max = 99999

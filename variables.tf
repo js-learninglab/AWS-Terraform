@@ -96,17 +96,17 @@ variable "aws_db_instance_name" {
 variable "aws_instance_type" {
   description = "The EC2 instance's type."
   type        = string
-  default     = "t2.micro"
+  default     = "t3.micro"
 }
 
 variable "aws_app_server_count" {
   description = "number of app_server instances"
-  default     = 2
+  default     = 1
 }
 
 variable "aws_db_server_count" {
   description = "number of db_server instances"
-  default     = 2
+  default     = 1
 }
 
 variable "aws_web_server_count" {
@@ -185,15 +185,15 @@ variable "gcp_image_project" {
 variable "gcp_boot_disk_size" {
   description = "The size of the boot disk in GB."
   type        = number
-  default     = 50
+  default     = 20
 }
 
 variable "gcp_app_server_count" {
   description = "number of app_server instances"
-  default     = 2
+  default     = 1
 }
 
 variable "gcp_db_server_count" {
   description = "number of db_server instances"
-  default     = 2
+  default     = 1
 }

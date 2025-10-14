@@ -124,7 +124,7 @@ resource "aws_security_group" "nginx_sg" {
     from_port   = var.aws_web_http_port
     to_port     = var.aws_web_http_port
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/8"]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # outbound internet access
@@ -135,6 +135,8 @@ resource "aws_security_group" "nginx_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = local.common_tags
 }
 
 # create virtual machine (1) or aws_instance
@@ -177,18 +179,18 @@ resource "aws_instance" "web_server" {
   })
 
 }
-
+/*
 #create virtual machine (4) or aws_instance
 resource "aws_instance" "web_server2" {
   count                       = var.aws_web_server_count
   ami                         = data.aws_ami.linux.id
   instance_type               = var.aws_instance_type
-  subnet_id                   = module.vpc.private_subnets[3]
+  subnet_id                   = local.web_subnets[count.index]
   vpc_security_group_ids      = [aws_security_group.nginx_sg.id]
   associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
 
-  tags = merge(local.common_tags, { Name = "web-server2-${count.index + 1}" })
+  tags = merge(local.common_tags, { Name = "web-server-${count.index + 1}" })
 
   user_data = templatefile("${path.module}/templates/startupscript.tpl", {
     bucket = aws_s3_bucket.aws_storage.bucket
@@ -196,7 +198,7 @@ resource "aws_instance" "web_server2" {
   })
 
 }
-
+*/
 
 #create virtual machine (1) or google_compute_instance
 resource "google_compute_instance" "gcp_app_server" {
