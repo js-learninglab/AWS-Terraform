@@ -10,8 +10,8 @@ locals {
 
 locals {
   web_subnets = [
-    module.vpc.public_subnets[1],
-    module.vpc.public_subnets[2]
+    module.aws_vpc.public_subnets[1],
+    module.aws_vpc.public_subnets[2]
   ]
 }
 resource "random_integer" "s3" {

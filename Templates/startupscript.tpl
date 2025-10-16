@@ -1,5 +1,6 @@
-// ...existing code...
+
 #!/bin/bash
+
 sudo amazon-linux-extras install -y nginx1
 sudo yum install -y awscli
 sudo systemctl enable nginx
@@ -26,6 +27,4 @@ sudo cat > /usr/share/nginx/html/index.html << 'WEBSITE'
     </div>
 </body>
 </html>
-WEBSITE
-// ...existing code...
 WEBSITE

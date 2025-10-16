@@ -14,6 +14,11 @@ resource "aws_s3_bucket_policy" "aws_storage_policy" {
     "Version": "2012-10-17",
     "Statement": [
         {
+            "Sid": "AllowEC2RoleGetObject"
+            "Effect": "Allow",
+            "Principal": {AWS = aws_iam_role.ec2_role.arn},
+        },
+        {
             "Effect": "Allow",
             "Principal": "*",
             "Action": "s3:GetObject",
@@ -21,13 +26,13 @@ resource "aws_s3_bucket_policy" "aws_storage_policy" {
         },
         {
             "Effect": "Allow",
-            "Principal": "*",
+            "Principal": {AWS = aws_iam_role.ec2_role.arn},
             "Action": "s3:ListBucket",
             "Resource": "arn:aws:s3:::${aws_s3_bucket.aws_storage.id}"
         },
         {
             "Effect": "Allow",
-            "Principal": "*",
+            "Principal": {AWS = aws_iam_role.ec2_role.arn},
             "Action": "s3:PutObject",
             "Resource": "arn:aws:s3:::${aws_s3_bucket.aws_storage.id}/*"
         }

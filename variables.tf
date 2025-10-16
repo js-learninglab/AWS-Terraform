@@ -91,17 +91,17 @@ variable "aws_instance_type" {
 
 variable "aws_app_server_count" {
   description = "number of app_server instances"
-  default     = 1
+  default     = 0
 }
 
 variable "aws_db_server_count" {
   description = "number of db_server instances"
-  default     = 1
+  default     = 0
 }
 
 variable "aws_web_server_count" {
   description = "number of web_server instances"
-  default     = 2
+  default     = 1
 }
 
 variable "aws_tags_owner" {
