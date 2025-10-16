@@ -163,7 +163,7 @@ resource "aws_instance" "web_server" {
   subnet_id                   = module.aws_vpc.private_subnets[2]
   vpc_security_group_ids      = [aws_security_group.nginx_sg.id]
   associate_public_ip_address = true
-  #iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
+  iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
 
   tags = merge(local.common_tags, { Name = "web-server-${count.index + 1}" })
 
@@ -173,29 +173,13 @@ resource "aws_instance" "web_server" {
   })
 
 }
-/*
-#create virtual machine (4) or aws_instance
-resource "aws_instance" "web_server2" {
-  count                       = var.aws_web_server_count
-  ami                         = data.aws_ami.linux.id
-  instance_type               = var.aws_instance_type
-  subnet_id                   = local.web_subnets[count.index]
-  vpc_security_group_ids      = [aws_security_group.nginx_sg.id]
-  associate_public_ip_address = true
-  iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
 
-  tags = merge(local.common_tags, { Name = "web-server-${count.index + 1}" })
-
-  user_data = templatefile("${path.module}/templates/startupscript.tpl", {
-    bucket = aws_s3_bucket.aws_storage.bucket
-    key    = aws_s3_object.logo.key
-  })
-
+# aws_iam_instance_profile
+resource "aws_iam_instance_profile" "ec2_instance_profile" {
+  name = "ec2_instance_profile"
+  role = aws_iam_role.ec2_role.name
 }
-*/
 
-
-/*
 # aws_iam_role
 resource "aws_iam_role" "ec2_role" {
   name = "ec2_role"
@@ -239,12 +223,6 @@ resource "aws_iam_role_policy" "ec2_role_policy" {
 EOF
 }
 
-# aws_iam_instance_profile
-resource "aws_iam_instance_profile" "ec2_instance_profile" {
-  name = "ec2_instance_profile"
-  role = aws_iam_role.ec2_role.name
-}
-*/
 
 /*
   ██████   ██████ ██████  

@@ -9,36 +9,26 @@ resource "aws_s3_bucket" "aws_storage" {
 # aws_s3_policy
 resource "aws_s3_bucket_policy" "aws_storage_policy" {
   bucket = aws_s3_bucket.aws_storage.id
-  policy = <<POLICY
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "AllowEC2RoleGetObject"
-            "Effect": "Allow",
-            "Principal": {AWS = aws_iam_role.ec2_role.arn},
-        },
-        {
-            "Effect": "Allow",
-            "Principal": "*",
-            "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::${aws_s3_bucket.aws_storage.id}/*"
-        },
-        {
-            "Effect": "Allow",
-            "Principal": {AWS = aws_iam_role.ec2_role.arn},
-            "Action": "s3:ListBucket",
-            "Resource": "arn:aws:s3:::${aws_s3_bucket.aws_storage.id}"
-        },
-        {
-            "Effect": "Allow",
-            "Principal": {AWS = aws_iam_role.ec2_role.arn},
-            "Action": "s3:PutObject",
-            "Resource": "arn:aws:s3:::${aws_s3_bucket.aws_storage.id}/*"
-        }
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AllowEC2RoleGetObject"
+        Effect    = "Allow"
+        Principal = { AWS = aws_iam_role.ec2_role.arn }   # ensure this role resource exists
+        Action    = ["s3:GetObject"]
+        Resource  = "${aws_s3_bucket.aws_storage.arn}/*"
+      },
+      {
+        Sid       = "AllowEC2RoleListBucket"
+        Effect    = "Allow"
+        Principal = { AWS = aws_iam_role.ec2_role.arn }
+        Action    = ["s3:ListBucket"]
+        Resource  = aws_s3_bucket.aws_storage.arn
+      }
     ]
-}
-POLICY
+  })
 }
 
 # aws_s3_object
