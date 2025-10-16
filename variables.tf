@@ -18,29 +18,19 @@ variable "aws_secret_key" {
 }
 */
 
+/*
+  █████  ██     ██ ███████ 
+ ██   ██ ██     ██ ██      
+ ███████ ██  █  ██ ███████ 
+ ██   ██ ██ ███ ██      ██ 
+ ██   ██  ███ ███  ███████
+*/
 variable "aws_region" {
   type        = string
   default     = "us-west-2"
   description = "AWS us-west-2 region"
 }
-/*
-variable "gcp_credentials" {
-  type = string
-  #credentials = file("C:/Cloud study/GCP credentials/gcp-credentials.json")
-  description = "GCP credentials"
-  sensitive = true
-  #setting this variable by pointing to credential file just to be different from aws
-  #credentials are specified in $env
-}
-*/
 
-variable "gcp_region" {
-  type        = string
-  default     = "us-west1"
-  description = "GCP us-west1 region"
-}
-#####################
-####AWS Variables####
 #####NETWORKING######
 
 variable "aws_vpc_cidr" {
@@ -64,7 +54,7 @@ variable "aws_vpc_azs" {
 variable "aws_vpc_private_subnets" {
   description = "A list of CIDR blocks for the private subnets."
   type        = list(string)
-  default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24","10.0.4.0/24"]
+  default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
 }
 
 variable "aws_dns_hostnames" {
@@ -132,8 +122,31 @@ variable "aws_tags_project" {
   default     = "Learning Terraform"
 }
 
-#####################
-####GCP Variables####
+/*
+  ██████   ██████ ██████  
+ ██       ██      ██   ██ 
+ ██   ███ ██      ██████  
+ ██    ██ ██      ██      
+  ██████   ██████ ██
+*/
+
+/*
+variable "gcp_credentials" {
+  type = string
+  #credentials = file("C:/Cloud study/GCP credentials/gcp-credentials.json")
+  description = "GCP credentials"
+  sensitive = true
+  #setting this variable by pointing to credential file just to be different from aws
+  #credentials are specified in $env
+}
+*/
+
+variable "gcp_region" {
+  type        = string
+  default     = "us-west1"
+  description = "GCP us-west1 region"
+}
+
 #####NETWORKING######
 
 #gcp network module doesn't require huge cidr block unlike aws
@@ -190,10 +203,10 @@ variable "gcp_boot_disk_size" {
 
 variable "gcp_app_server_count" {
   description = "number of app_server instances"
-  default     = 1
+  default     = 0
 }
 
 variable "gcp_db_server_count" {
   description = "number of db_server instances"
-  default     = 1
+  default     = 0
 }

@@ -1,3 +1,11 @@
+/*
+ ██████  ██████   ██████  ██    ██ ██ ██████  ███████ ██████  
+ ██   ██ ██   ██ ██    ██ ██    ██ ██ ██   ██ ██      ██   ██ 
+ ██████  ██████  ██    ██ ██    ██ ██ ██   ██ █████   ██████  
+ ██      ██   ██ ██    ██  ██  ██  ██ ██   ██ ██      ██   ██ 
+ ██      ██   ██  ██████    ████   ██ ██████  ███████ ██   ██ 
+*/
+
 provider "aws" {
   #access_key = var.aws_access_key
   #secret_key = var.aws_secret_key
@@ -10,6 +18,14 @@ provider "google" {
   project = "GCP-terraform-471706"
   region  = var.gcp_region
 }
+
+/*
+  █████  ██     ██ ███████ 
+ ██   ██ ██     ██ ██      
+ ███████ ██  █  ██ ███████ 
+ ██   ██ ██ ███ ██      ██ 
+ ██   ██  ███ ███  ███████
+*/
 
 data "aws_ami" "windows" {
   most_recent = true
@@ -45,29 +61,7 @@ module "vpc" {
   enable_dns_hostnames = var.aws_dns_hostnames
 }
 
-module "vpc2" {
-  source  = "terraform-google-modules/network/google"
-  version = "12.0"
 
-  project_id   = "GCP-terraform-471706"
-  network_name = "main"
-  # ip_cidr_range = "11.0.0.0/16"
-
-
-  subnets = [
-
-    {
-      subnet_name   = "gcp-app-subnet"
-      subnet_ip     = var.gcp_vpc_subnets[0]
-      subnet_region = var.gcp_vpc_region
-    },
-    {
-      subnet_name   = "gcp-db-subnet"
-      subnet_ip     = var.gcp_vpc_subnets[1]
-      subnet_region = var.gcp_vpc_region
-    }
-  ]
-}
 
 #create aws public subnet
 resource "aws_subnet" "public_subnet1" {
@@ -200,49 +194,7 @@ resource "aws_instance" "web_server2" {
 }
 */
 
-#create virtual machine (1) or google_compute_instance
-resource "google_compute_instance" "gcp_app_server" {
-  name         = var.gcp_app_instance_name
-  count        = var.gcp_app_server_count
-  machine_type = var.gcp_instance_type
-  zone         = var.gcp_vpc_region
 
-  network_interface {
-    network    = module.vpc2.network_id
-    subnetwork = module.vpc2.subnets["us-west1/gcp-app-subnet"].id
-  }
-
-  boot_disk {
-    initialize_params {
-      image = "${var.gcp_image_project}/${var.gcp_image_family}"
-
-      size = var.gcp_boot_disk_size
-    }
-  }
-  tags = [var.gcp_app_instance_name]
-}
-
-#create virtual machine (2) or google_compute_instance
-resource "google_compute_instance" "gcp_db_server" {
-  name         = var.gcp_db_instance_name
-  count        = var.gcp_db_server_count
-  machine_type = var.gcp_instance_type
-  zone         = var.gcp_vpc_region
-
-  network_interface {
-    network    = module.vpc2.network_id
-    subnetwork = module.vpc2.subnets["us-west1/gcp-db-subnet"].id
-  }
-
-  boot_disk {
-    initialize_params {
-      image = "${var.gcp_image_project}/${var.gcp_image_family}"
-
-      size = var.gcp_boot_disk_size
-    }
-  }
-  tags = [var.gcp_db_instance_name]
-}
 
 # aws_iam_role
 resource "aws_iam_role" "ec2_role" {
@@ -291,4 +243,80 @@ EOF
 resource "aws_iam_instance_profile" "ec2_instance_profile" {
   name = "ec2_instance_profile"
   role = aws_iam_role.ec2_role.name
+}
+
+
+/*
+  ██████   ██████ ██████  
+ ██       ██      ██   ██ 
+ ██   ███ ██      ██████  
+ ██    ██ ██      ██      
+  ██████   ██████ ██
+
+module "vpc2" {
+  source  = "terraform-google-modules/network/google"
+  version = "12.0"
+
+  project_id   = "GCP-terraform-471706"
+  network_name = "main"
+  # ip_cidr_range = "11.0.0.0/16"
+
+
+  subnets = [
+
+    {
+      subnet_name   = "gcp-app-subnet"
+      subnet_ip     = var.gcp_vpc_subnets[0]
+      subnet_region = var.gcp_vpc_region
+    },
+    {
+      subnet_name   = "gcp-db-subnet"
+      subnet_ip     = var.gcp_vpc_subnets[1]
+      subnet_region = var.gcp_vpc_region
+    }
+  ]
+}
+
+#create virtual machine (1) or google_compute_instance
+resource "google_compute_instance" "gcp_app_server" {
+  name         = var.gcp_app_instance_name
+  count        = var.gcp_app_server_count
+  machine_type = var.gcp_instance_type
+  zone         = var.gcp_vpc_region
+
+  network_interface {
+    network    = module.vpc2.network_id
+    subnetwork = module.vpc2.subnets["us-west1/gcp-app-subnet"].id
+  }
+
+  boot_disk {
+    initialize_params {
+      image = "${var.gcp_image_project}/${var.gcp_image_family}"
+
+      size = var.gcp_boot_disk_size
+    }
+  }
+  tags = [var.gcp_app_instance_name]
+}
+
+#create virtual machine (2) or google_compute_instance
+resource "google_compute_instance" "gcp_db_server" {
+  name         = var.gcp_db_instance_name
+  count        = var.gcp_db_server_count
+  machine_type = var.gcp_instance_type
+  zone         = var.gcp_vpc_region
+
+  network_interface {
+    network    = module.vpc2.network_id
+    subnetwork = module.vpc2.subnets["us-west1/gcp-db-subnet"].id
+  }
+
+  boot_disk {
+    initialize_params {
+      image = "${var.gcp_image_project}/${var.gcp_image_family}"
+
+      size = var.gcp_boot_disk_size
+    }
+  }
+  tags = [var.gcp_db_instance_name]
 }
