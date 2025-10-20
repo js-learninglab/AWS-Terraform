@@ -5,12 +5,12 @@ sudo rm /usr/share/nginx/html/index.html
 sudo cat > /usr/share/nginx/html/index.html << 'WEBSITE'
 <html>
 <head>
-    <title>Taco Team Server - ${environment}</title>
+    <title>JS LearningLab</title>
 </head>
 <body style="background-color:#1F778D">
     <p style="text-align: center;">
         <span style="color:#FFFFFF;">
-            <span style="font-size:100px;">Welcome to the ${environment} website! Have a &#127790;</span>
+            <span style="font-size:100px;">Welcome to the JS Learninglab! Have a good day!</span>
         </span>
     </p>
 </body>

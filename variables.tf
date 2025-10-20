@@ -55,6 +55,10 @@ variable "aws_web_server_count" {
   default     = 1
 }
 
+variable "environment" {
+  description = "The environment for the deployment (e.g., dev, staging, prod)"
+  type        = string
+}
 
 
 /*

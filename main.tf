@@ -93,7 +93,7 @@ resource "aws_security_group" "aweb_sg" {
 
 #create virtual machine or aws_instance
 resource "aws_instance" "aweb_server" {
-  ami           = data.aws_ami.windows.id
+  ami           = data.aws_ami.linux.id
   instance_type = var.aws_instance_type
   count         = var.aws_web_server_count
 
