@@ -47,17 +47,7 @@ variable "aws_web_instance_name" {
 variable "aws_instance_type" {
   description = "The EC2 instance's type."
   type        = string
-  default     = "t3.micro"
-}
-
-variable "aws_app_server_count" {
-  description = "number of app_server instances"
-  default     = 0
-}
-
-variable "aws_db_server_count" {
-  description = "number of db_server instances"
-  default     = 0
+  default     = "t2.micro"
 }
 
 variable "aws_web_server_count" {

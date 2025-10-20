@@ -49,9 +49,6 @@ data "aws_ami" "linux" {
   owners = ["137112412989"]
 }
 
-
-
-
 #create aws public subnet
 
 
@@ -64,12 +61,54 @@ data "aws_ami" "linux" {
 #associate aws routing table with public subnet
 
 
-# Security group#
+# Security group
+resource "aws_security_group" "aweb_sg" {
+  name        = "aweb_sg"
+  description = "Allow HTTP  and HTTPS inbound traffic"
+  
+  ingress {
+    description      = "HTTP from anywhere"
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
 
+  ingress {
+    description      = "HTTPS from anywhere"
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
 
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+} 
 
 #create virtual machine or aws_instance
+resource "aws_instance" "aweb_server" {
+  ami           = data.aws_ami.windows.id
+  instance_type = var.aws_instance_type
+  count         = var.aws_web_server_count
 
+  #subnet_id                   = module.vpc1.public_subnets[0]
+  vpc_security_group_ids      = [aws_security_group.aweb_sg.id]
+  associate_public_ip_address = true
+  user_data = templatefile("./templates/startupscript.tpl", {
+    web_server_name = "${var.aws_web_instance_name}-${count.index + 1}"
+  })
+
+
+  tags = {
+    Name = "${var.aws_web_instance_name}-${count.index + 1}"
+  }
+}
 
 
 /*
