@@ -51,18 +51,65 @@ variable "aws_instance_type" {
 
 variable "aws_web_server_count" {
   description = "number of web_server instances"
-  default     = 1
-}
-
-variable "environment" {
-  description = "The environment for the deployment (e.g., dev, staging, prod)"
   type        = string
+  default     = 1
 }
 
 variable "aws_vpc_cidr" {
   description = "The cidr for the AWS VPC."
   type        = string
   default     = "10.0.0.0/16"
+}
+
+variable "aws_vpc_a_web_subnet" {
+  description = "The cidr for the AWS VPC web subnet."
+  type        = string
+  default     = "10.0.1.0/24"
+}
+
+variable "aws_us_west_regions" {
+  description = "The availability zone for the AWS resources."
+  type        = list(string)
+  default     = ["us-west-2a", "us-west-2b", "us-west-2c"]
+}
+
+variable "aws_protocol_tcp" {
+  description = "The TCP protocol."
+  type        = string
+  default     = "tcp"
+}
+
+variable "aws_tcp_80" {
+  description = "The TCP port 80 for HTTP."
+  type        = number
+  default     = 80
+}
+
+variable "aws_tcp_443" {
+  description = "The TCP port 443 for HTTPS."
+  type        = number
+  default     = 443
+}
+
+variable "aws_tcp_all" {
+  description = "All TCP ports."
+  type        = string
+  default     = "0"
+}
+
+variable "aws_vpc_enable_dns_hostnames" {
+  description = "Enable DNS hostnames in the VPC."
+  type        = bool
+  default     = true
+}
+
+variable "aws_common_tags" {
+  description = "Common tag Project for all AWS resources."
+  type        = map(string)
+  default = {
+    Owner   = "JS-LL"
+    Project = "AWS-Tf"
+  }
 }
 
 /*

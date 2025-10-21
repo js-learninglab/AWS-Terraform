@@ -49,88 +49,95 @@ data "aws_ami" "linux" {
   owners = ["137112412989"]
 }
 #create aws vpc
-resource "aws_vpc" "avpc" {
+resource "aws_vpc" "a_vpc" {
   cidr_block           = var.aws_vpc_cidr
-   enable_dns_hostnames = true
+  enable_dns_hostnames = var.aws_vpc_enable_dns_hostnames
 
-  tags = {
-    Name = "avpc"
-  }
+  tags = merge(local.common_tags, { name = "${local.prefix}-vpc" })
+
 }
 
 #create aws vpc subnet
-resource "aws_subnet" "aweb_subnet" {
-  vpc_id            = aws_vpc.avpc.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "us-west-2a"
+resource "aws_subnet" "a_web_subnet" {
+  vpc_id            = aws_vpc.a_vpc.id
+  cidr_block        = var.aws_vpc_a_web_subnet
+  availability_zone = var.aws_us_west_regions[0]
+  //map_public_ip_on_launch = true  #commented as i want to control public IP assignment on VPC level
 
-  tags = {
-    Name = "aweb_subnet"
-  }
+  tags = local.common_tags
 }
 
 #create internet gateway
-resource "aws_internet_gateway" "aigw" {
-  vpc_id = aws_vpc.avpc.id
+resource "aws_internet_gateway" "a_igw" {
+  vpc_id = aws_vpc.a_vpc.id
 
-  tags = {
-    Name = "aigw"
-  }
+  tags = merge(local.common_tags, { Name = "${local.prefix}-igw" })
 }
 
 #create aws routing table
+resource "aws_route_table" "a_rt" {
+  vpc_id = aws_vpc.a_vpc.id
 
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.a_igw.id
+  }
+  tags = merge(local.common_tags, { Name = "${local.prefix}-rt" })  
+}
 
 #associate aws routing table with public subnet
-
+resource "aws_route_table_association" "a_rt_assoc" {
+  subnet_id      = aws_subnet.a_web_subnet.id
+  route_table_id = aws_route_table.a_rt.id
+}
 
 # Security group
-resource "aws_security_group" "aweb_sg" {
-  name        = "aweb_sg"
+resource "aws_security_group" "a_web_sg" {
+  name        = "a_web_sg"
   description = "Allow HTTP  and HTTPS inbound traffic"
-  
+
   ingress {
-    description      = "HTTP from anywhere"
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
+    description = "HTTP from anywhere"
+    from_port   = var.aws_tcp_80
+    to_port     = var.aws_tcp_80
+    protocol    = var.aws_protocol_tcp
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    description      = "HTTPS from anywhere"
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
+    description = "HTTPS from anywhere"
+    from_port   = var.aws_tcp_443
+    to_port     = var.aws_tcp_443
+    protocol    = var.aws_protocol_tcp
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     description = "Allow all outbound traffic"
-    from_port   = 0
-    to_port     = 0
+    from_port   = var.aws_tcp_all
+    to_port     = var.aws_tcp_all
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-} 
+
+  tags = merge(local.common_tags, { Name = "${local.prefix}-sg" })
+}
 
 #create virtual machine or aws_instance
-resource "aws_instance" "aweb_server" {
+resource "aws_instance" "a_web_server" {
   ami           = data.aws_ami.linux.id
   instance_type = var.aws_instance_type
+  subnet_id     = aws_subnet.a_web_subnet.id
   count         = var.aws_web_server_count
-
-  #subnet_id                   = module.vpc1.public_subnets[0]
-  vpc_security_group_ids      = [aws_security_group.aweb_sg.id]
+  #subnet_id                  = module.vpc1.public_subnets[0]
+  vpc_security_group_ids      = [aws_security_group.a_web_sg.id]
   associate_public_ip_address = true
   user_data = templatefile("./templates/startupscript.tpl", {
     web_server_name = "${var.aws_web_instance_name}-${count.index + 1}"
   })
 
 
-  tags = {
-    Name = "${var.aws_web_instance_name}-${count.index + 1}"
-  }
+  tags = merge(local.common_tags, { Name = "${local.prefix}-web-server-${count.index + 1}" })
 }
 
 
