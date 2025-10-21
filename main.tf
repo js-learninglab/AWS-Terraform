@@ -48,6 +48,11 @@ data "aws_ami" "linux" {
 
   owners = ["137112412989"]
 }
+
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
 #create aws vpc
 resource "aws_vpc" "a_vpc" {
   cidr_block           = var.aws_vpc_cidr
@@ -58,13 +63,25 @@ resource "aws_vpc" "a_vpc" {
 }
 
 #create aws vpc subnet
-resource "aws_subnet" "a_web_subnet" {
+resource "aws_subnet" "a_web_subnet1" {
   vpc_id            = aws_vpc.a_vpc.id
-  cidr_block        = var.aws_vpc_a_web_subnet
-  availability_zone = var.aws_us_west_regions[0]
+  cidr_block        = var.aws_vpc_a_web_subnets[0]
+  //availability_zone = var.aws_us_west_regions[0]
+  availability_zone = data.aws_availability_zones.available.names[0]
   //map_public_ip_on_launch = true  #commented as i want to control public IP assignment on VPC level
 
-  tags = local.common_tags
+  tags = merge(local.common_tags, { Name = "${local.prefix}a-web-subnet1" })
+}
+
+#create aws vpc subnet 2
+resource "aws_subnet" "a_web_subnet2" {
+  vpc_id            = aws_vpc.a_vpc.id
+  cidr_block        = var.aws_vpc_a_web_subnets[1]
+  //availability_zone = var.aws_us_west_regions[1]
+  availability_zone = data.aws_availability_zones.available.names[1]
+  //map_public_ip_on_launch = true  #commented as i want to control public IP assignment on VPC level
+
+  tags = merge(local.common_tags, { Name = "${local.prefix}-a-web-subnet2" })
 }
 
 #create internet gateway
@@ -86,8 +103,13 @@ resource "aws_route_table" "a_rt" {
 }
 
 #associate aws routing table with public subnet
-resource "aws_route_table_association" "a_rt_assoc" {
-  subnet_id      = aws_subnet.a_web_subnet.id
+resource "aws_route_table_association" "a_rt_assoc_subnet1" {
+  subnet_id      = aws_subnet.a_web_subnet1.id
+  route_table_id = aws_route_table.a_rt.id
+}
+
+resource "aws_route_table_association" "a_rt_assoc_subnet2" {
+  subnet_id      = aws_subnet.a_web_subnet2.id
   route_table_id = aws_route_table.a_rt.id
 }
 
@@ -95,6 +117,39 @@ resource "aws_route_table_association" "a_rt_assoc" {
 resource "aws_security_group" "a_web_sg" {
   name        = "a_web_sg"
   description = "Allow HTTP  and HTTPS inbound traffic"
+  vpc_id      = aws_vpc.a_vpc.id
+
+  ingress {
+    description = "HTTP from anywhere"
+    from_port   = var.aws_tcp_80
+    to_port     = var.aws_tcp_80
+    protocol    = var.aws_protocol_tcp
+    cidr_blocks = [var.aws_vpc_cidr]
+  }
+
+  ingress {
+    description = "HTTPS from anywhere"
+    from_port   = var.aws_tcp_443
+    to_port     = var.aws_tcp_443
+    protocol    = var.aws_protocol_tcp
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = var.aws_tcp_all
+    to_port     = var.aws_tcp_all
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(local.common_tags, { Name = "${local.prefix}-sg" })
+}
+
+resource "aws_security_group" "a_web_lb_sg" {
+  name        = "a_web_lb_sg"
+  description = "Allow HTTP  and HTTPS inbound traffic"
+  vpc_id      = aws_vpc.a_vpc.id
 
   ingress {
     description = "HTTP from anywhere"
@@ -124,22 +179,35 @@ resource "aws_security_group" "a_web_sg" {
 }
 
 #create virtual machine or aws_instance
-resource "aws_instance" "a_web_server" {
+resource "aws_instance" "a_web_server1" {
   ami           = data.aws_ami.linux.id
   instance_type = var.aws_instance_type
-  subnet_id     = aws_subnet.a_web_subnet.id
-  count         = var.aws_web_server_count
+  subnet_id     = aws_subnet.a_web_subnet1.id
+  //count         = var.aws_web_server_count
   #subnet_id                  = module.vpc1.public_subnets[0]
   vpc_security_group_ids      = [aws_security_group.a_web_sg.id]
   associate_public_ip_address = true
   user_data = templatefile("./templates/startupscript.tpl", {
-    web_server_name = "${var.aws_web_instance_name}-${count.index + 1}"
+    web_server_name = "${var.aws_web_instance_name}-a-web-server1"
   })
 
-
-  tags = merge(local.common_tags, { Name = "${local.prefix}-web-server-${count.index + 1}" })
+  tags = merge(local.common_tags, { Name = "${local.prefix}a-web-server1" })
 }
 
+resource "aws_instance" "a_web_server2" {
+  ami           = data.aws_ami.linux.id
+  instance_type = var.aws_instance_type
+  subnet_id     = aws_subnet.a_web_subnet2.id
+  //count         = var.aws_web_server_count
+  #subnet_id                  = module.vpc1.public_subnets[1]
+  vpc_security_group_ids      = [aws_security_group.a_web_sg.id]
+  associate_public_ip_address = true
+  user_data = templatefile("./templates/startupscript.tpl", {
+    web_server_name = "${var.aws_web_instance_name}a-web-server2"
+  })
+
+  tags =  merge(local.common_tags, { Name = "${local.prefix}a-web-server2" })
+}
 
 /*
   ██████   ██████ ██████  
