@@ -48,12 +48,35 @@ data "aws_ami" "linux" {
 
   owners = ["137112412989"]
 }
+#create aws vpc
+resource "aws_vpc" "avpc" {
+  cidr_block           = var.aws_vpc_cidr
+   enable_dns_hostnames = true
 
-#create aws public subnet
+  tags = {
+    Name = "avpc"
+  }
+}
 
+#create aws vpc subnet
+resource "aws_subnet" "aweb_subnet" {
+  vpc_id            = aws_vpc.avpc.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "us-west-2a"
+
+  tags = {
+    Name = "aweb_subnet"
+  }
+}
 
 #create internet gateway
+resource "aws_internet_gateway" "aigw" {
+  vpc_id = aws_vpc.avpc.id
 
+  tags = {
+    Name = "aigw"
+  }
+}
 
 #create aws routing table
 

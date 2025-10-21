@@ -43,7 +43,6 @@ variable "aws_web_instance_name" {
   default     = "aws-web-terraform"
 }
 
-
 variable "aws_instance_type" {
   description = "The EC2 instance's type."
   type        = string
@@ -60,6 +59,11 @@ variable "environment" {
   type        = string
 }
 
+variable "aws_vpc_cidr" {
+  description = "The cidr for the AWS VPC."
+  type        = string
+  default     = "10.0.0.0/16"
+}
 
 /*
   ██████   ██████ ██████  
