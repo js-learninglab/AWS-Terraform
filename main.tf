@@ -187,7 +187,9 @@ resource "aws_instance" "a_web_server1" {
   #subnet_id                  = module.vpc1.public_subnets[0]
   vpc_security_group_ids      = [aws_security_group.a_web_sg.id]
   associate_public_ip_address = true
-  user_data = templatefile("./templates/startupscript.tpl", {
+  iam_instance_profile = aws_iam_instance_profile.a_allow_web_servers_s3_profile.name
+  depends_on = [ aws_iam_role_policy.a_allow_web_servers_s3_policy ]
+  user_data = templatefile("./templates/startupscript2.tpl", {
     web_server_name = "${var.aws_web_instance_name}-a-web-server1"
   })
 
@@ -202,7 +204,9 @@ resource "aws_instance" "a_web_server2" {
   #subnet_id                  = module.vpc1.public_subnets[1]
   vpc_security_group_ids      = [aws_security_group.a_web_sg.id]
   associate_public_ip_address = true
-  user_data = templatefile("./templates/startupscript.tpl", {
+  iam_instance_profile = aws_iam_instance_profile.a_allow_web_servers_s3_profile.name
+  depends_on = [ aws_iam_role_policy.a_allow_web_servers_s3_policy ]
+  user_data = templatefile("./templates/startupscript2.tpl", {
     web_server_name = "${var.aws_web_instance_name}a-web-server2"
   })
 
@@ -231,6 +235,8 @@ resource "aws_iam_role" "a_allow_web_servers_s3" {
 resource "aws_iam_instance_profile" "a_allow_web_servers_s3_profile" {
   name = "a_allow_web_servers_s3_profile"
   role = aws_iam_role.a_allow_web_servers_s3.name
+
+  tags = merge(local.common_tags, { Name = "${local.prefix}-a_allow_web_servers_s3_profile" })
 }
 
 # create iam role policy

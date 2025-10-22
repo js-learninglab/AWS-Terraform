@@ -8,8 +8,15 @@ resource "aws_lb" "a_web_lb" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.a_web_lb_sg.id]
   subnets            = [aws_subnet.a_web_subnet1.id, aws_subnet.a_web_subnet2.id]
+  depends_on = [ aws_s3_bucket.a_s3_bucket ]
 
   enable_deletion_protection = false
+
+  access_logs {
+    bucket = aws_s3_bucket.a_s3_bucket.bucket
+    prefix = "a-web-lb-logs"
+    enabled = true
+  }
 
   tags = merge(local.common_tags, { Name = "${local.prefix}-lb" })
 }
@@ -18,7 +25,7 @@ resource "aws_lb" "a_web_lb" {
 resource "aws_lb_target_group" "a_web_lb_tg" {
   name     = "a-web-lb-tg"
   port     = var.aws_tcp_80
-  protocol = "HTTP"
+  protocol = "HTTP" #doesn't like variable here and also case sensitive
   vpc_id   = aws_vpc.a_vpc.id
 
   tags = merge(local.common_tags, { Name = "${local.prefix}-lb-tg" })
@@ -28,7 +35,7 @@ resource "aws_lb_target_group" "a_web_lb_tg" {
 resource "aws_lb_listener" "a_web_lb_listener" {
   load_balancer_arn = aws_lb.a_web_lb.arn
   port              = var.aws_tcp_80
-  protocol          = "HTTP"
+  protocol          = "HTTP" #doesn't like variable here and also case sensitive
 
   default_action {
     type = "forward"
