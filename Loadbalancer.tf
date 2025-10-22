@@ -1,3 +1,6 @@
+# aws lb service account
+data "aws_elb_service_account" "root" {}
+
 # create aws loadbalancer
 resource "aws_lb" "a_web_lb" {
   name               = "a-web-lb"
@@ -47,3 +50,4 @@ resource "aws_lb_target_group_attachment" "a_web_lb_tg_attach2" {
     target_id        = aws_instance.a_web_server2.id
     port             = var.aws_tcp_80
 }
+

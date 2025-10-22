@@ -209,6 +209,52 @@ resource "aws_instance" "a_web_server2" {
   tags =  merge(local.common_tags, { Name = "${local.prefix}a-web-server2" })
 }
 
+# create iam role
+resource "aws_iam_role" "a_allow_web_servers_s3" {
+  name = "a_allow_web_servers_s3"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+# create iam instance profile
+resource "aws_iam_instance_profile" "a_allow_web_servers_s3_profile" {
+  name = "a_allow_web_servers_s3_profile"
+  role = aws_iam_role.a_allow_web_servers_s3.name
+}
+
+# create iam role policy
+resource "aws_iam_role_policy" "a_allow_web_servers_s3_policy" {
+  name = "a_allow_web_servers_s3_policy"
+  role = aws_iam_role.a_allow_web_servers_s3.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:*"
+        ]
+        Effect   = "Allow"
+        Resource = [
+          "arn:aws:s3:::${local.s3_bucket_name}",
+          "arn:aws:s3:::${local.s3_bucket_name}/*"
+        ]
+      }
+    ]
+  })
+}
+
 /*
   ██████   ██████ ██████  
  ██       ██      ██   ██ 

@@ -8,7 +8,7 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 6.0"
     }
-
+    # adding random provider to generate random strings/integers for S3 bucket ID
     random = {
       source  = "hashicorp/random"
       version = "~> 3.5"
