@@ -5,7 +5,7 @@ locals {
   }
   prefix = "${var.aws_common_tags.Owner}-${var.aws_common_tags.Project}"
 
-  s3_bucket_name = "${local.prefix}-S3bucket-${random_integer.random_number.result}"
+  s3_bucket_name = "jslearninglab-s3bucket-${random_integer.random_number.result}"
 }
 
 resource "random_integer" "random_number" {
