@@ -2,7 +2,7 @@
 resource "aws_s3_bucket" "a_s3_bucket" {
   bucket = local.s3_bucket_name
   force_destroy = true
-  tags = merge(local.common_tags, { Name = "${local.prefix}-s3-bucket" })
+  tags = merge(local.common_tags, { Name = lower("${local.prefix}-s3-bucket") })
 }
 
 # create s3 bucket policy

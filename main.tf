@@ -190,7 +190,7 @@ resource "aws_instance" "a_web_server1" {
   iam_instance_profile = aws_iam_instance_profile.a_allow_web_servers_s3_profile.name
   depends_on = [ aws_iam_role_policy.a_allow_web_servers_s3_policy ]
   user_data = templatefile("./templates/startupscript2.tpl", {
-    web_server_name = "${var.aws_web_instance_name}-a-web-server1"
+    s3_bucket_name = aws_s3_bucket.a_s3_bucket.id
   })
 
   tags = merge(local.common_tags, { Name = "${local.prefix}a-web-server1" })
@@ -207,7 +207,7 @@ resource "aws_instance" "a_web_server2" {
   iam_instance_profile = aws_iam_instance_profile.a_allow_web_servers_s3_profile.name
   depends_on = [ aws_iam_role_policy.a_allow_web_servers_s3_policy ]
   user_data = templatefile("./templates/startupscript2.tpl", {
-    web_server_name = "${var.aws_web_instance_name}a-web-server2"
+    s3_bucket_name = aws_s3_bucket.a_s3_bucket.id
   })
 
   tags =  merge(local.common_tags, { Name = "${local.prefix}a-web-server2" })
