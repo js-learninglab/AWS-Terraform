@@ -58,37 +58,29 @@ resource "aws_vpc" "a_vpc" {
   cidr_block           = var.aws_vpc_cidr
   enable_dns_hostnames = var.aws_vpc_enable_dns_hostnames
 
-  tags = merge(local.common_tags, { name = "${local.prefix}-vpc" })
+  tags = merge(local.common_tags, { name = "${local.naming_prefix}-vpc" })
 
 }
 
 #create aws vpc subnet
-resource "aws_subnet" "a_web_subnet1" {
+resource "aws_subnet" "a_web_subnets" {
+  count = var.aws_web_subnet_count
   vpc_id     = aws_vpc.a_vpc.id
-  cidr_block = var.aws_vpc_a_web_subnets[0]
+  cidr_block = var.aws_vpc_web_subnets_cidrs[count.index]
   //availability_zone = var.aws_us_west_regions[0]
-  availability_zone = data.aws_availability_zones.available.names[0]
+  availability_zone = data.aws_availability_zones.available.names[count.index]
   //map_public_ip_on_launch = true  #commented as i want to control public IP assignment on VPC level
 
-  tags = merge(local.common_tags, { Name = "${local.prefix}a-web-subnet1" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-a-web-subnets${count.index + 1}" })
 }
 
-#create aws vpc subnet 2
-resource "aws_subnet" "a_web_subnet2" {
-  vpc_id     = aws_vpc.a_vpc.id
-  cidr_block = var.aws_vpc_a_web_subnets[1]
-  //availability_zone = var.aws_us_west_regions[1]
-  availability_zone = data.aws_availability_zones.available.names[1]
-  //map_public_ip_on_launch = true  #commented as i want to control public IP assignment on VPC level
-
-  tags = merge(local.common_tags, { Name = "${local.prefix}-a-web-subnet2" })
-}
+#create aws vpc subnet 2 >>REMOVED BECAUSE OF COUNT IN aws_subnet a_web_subnets
 
 #create internet gateway
 resource "aws_internet_gateway" "a_igw" {
   vpc_id = aws_vpc.a_vpc.id
 
-  tags = merge(local.common_tags, { Name = "${local.prefix}-igw" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-igw" })
 }
 
 #create aws routing table
@@ -99,19 +91,17 @@ resource "aws_route_table" "a_rt" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.a_igw.id
   }
-  tags = merge(local.common_tags, { Name = "${local.prefix}-rt" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-rt" })
 }
 
 #associate aws routing table with public subnet
-resource "aws_route_table_association" "a_rt_assoc_subnet1" {
-  subnet_id      = aws_subnet.a_web_subnet1.id
+resource "aws_route_table_association" "a_rt_assoc_subnets" {
+  count = var.aws_web_subnet_count #reusing the subnet count variable instead
+  subnet_id      = aws_subnet.a_web_subnets[count.index].id
   route_table_id = aws_route_table.a_rt.id
 }
 
-resource "aws_route_table_association" "a_rt_assoc_subnet2" {
-  subnet_id      = aws_subnet.a_web_subnet2.id
-  route_table_id = aws_route_table.a_rt.id
-}
+#associate aws routing table with public subnet 2 >> REMOVED BECAUSE OF COUNT IN aws_route_table_association a_rt_assoc_subnets
 
 # Security group
 resource "aws_security_group" "a_web_sg" {
@@ -143,7 +133,7 @@ resource "aws_security_group" "a_web_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(local.common_tags, { Name = "${local.prefix}-sg" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-sg" })
 }
 
 resource "aws_security_group" "a_web_lb_sg" {
@@ -175,15 +165,16 @@ resource "aws_security_group" "a_web_lb_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(local.common_tags, { Name = "${local.prefix}-sg" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-lb-sg" })
 }
 
 #create virtual machine or aws_instance
-resource "aws_instance" "a_web_server1" {
+resource "aws_instance" "a_web_servers" {
   ami           = data.aws_ami.linux.id
   instance_type = var.aws_instance_type
-  subnet_id     = aws_subnet.a_web_subnet1.id
-  //count         = var.aws_web_server_count
+  #using modulo to distribute instances across total count of subnets in the event of more instances are provisioned
+  subnet_id     = aws_subnet.a_web_subnets[(count.index % var.aws_web_subnet_count)].id
+  count         = var.aws_web_server_count
   #subnet_id                  = module.vpc1.public_subnets[0]
   vpc_security_group_ids      = [aws_security_group.a_web_sg.id]
   associate_public_ip_address = true
@@ -193,25 +184,10 @@ resource "aws_instance" "a_web_server1" {
     s3_bucket_name = aws_s3_bucket.a_s3_bucket.id
   })
 
-  tags = merge(local.common_tags, { Name = "${local.prefix}a-web-server1" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-a-web-servers${count.index + 1}" })
 }
 
-resource "aws_instance" "a_web_server2" {
-  ami           = data.aws_ami.linux.id
-  instance_type = var.aws_instance_type
-  subnet_id     = aws_subnet.a_web_subnet2.id
-  //count         = var.aws_web_server_count
-  #subnet_id                  = module.vpc1.public_subnets[1]
-  vpc_security_group_ids      = [aws_security_group.a_web_sg.id]
-  associate_public_ip_address = true
-  iam_instance_profile        = aws_iam_instance_profile.a_allow_web_servers_s3_profile.name
-  depends_on                  = [aws_iam_role_policy.a_allow_web_servers_s3_policy]
-  user_data = templatefile("./templates/startupscript2.tpl", {
-    s3_bucket_name = aws_s3_bucket.a_s3_bucket.id
-  })
-
-  tags = merge(local.common_tags, { Name = "${local.prefix}a-web-server2" })
-}
+#create virtual machine or aws_instance >> REMOVED BECAUSE OF COUNT IN aws_instance a_web_servers
 
 # create iam role
 resource "aws_iam_role" "a_allow_web_servers_s3" {
@@ -236,7 +212,7 @@ resource "aws_iam_instance_profile" "a_allow_web_servers_s3_profile" {
   name = "a_allow_web_servers_s3_profile"
   role = aws_iam_role.a_allow_web_servers_s3.name
 
-  tags = merge(local.common_tags, { Name = "${local.prefix}-a_allow_web_servers_s3_profile" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-a_allow_web_servers_s3_profile" })
 }
 
 # create iam role policy

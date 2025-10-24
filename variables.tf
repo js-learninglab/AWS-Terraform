@@ -51,8 +51,14 @@ variable "aws_instance_type" {
 
 variable "aws_web_server_count" {
   description = "number of web_server instances"
-  type        = string
-  default     = 1
+  type        = number
+  default     = 2
+}
+
+variable "aws_web_subnet_count" {
+  description = "number of aws web subnets"
+  type        = number
+  default     = 2
 }
 
 variable "aws_vpc_cidr" {
@@ -61,7 +67,7 @@ variable "aws_vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
-variable "aws_vpc_a_web_subnets" {
+variable "aws_vpc_web_subnets_cidrs" {
   description = "The cidr for the AWS VPC web subnet."
   type        = list(string)
   default     = ["10.0.1.0/24", "10.0.2.0/24"]
@@ -108,8 +114,14 @@ variable "aws_common_tags" {
   type        = map(string)
   default = {
     Owner   = "JS-LL"
-    Project = "AWS-Tf"
+    Project = "AWS-TF"
   }
+}
+
+variable "aws_naming_prefix" {
+  description = "Naming prefix for all resources"
+  type        = string
+  default     = "JSLearningLab"
 }
 
 /*

@@ -5,44 +5,23 @@
  ██   ██ ██ ███ ██      ██ 
  ██   ██  ███ ███  ███████
 */
-output "a_web_servers1_public_ip_url" {
-  description = "The URL to access the web server1"
-  value       = "http://${aws_instance.a_web_server1.public_ip}:80"
+output "a_web_servers_public_ip_url" {
+  description = "The URL to access the web server(s)"
+  value       = [for ip in aws_instance.a_web_servers[*].public_ip : "http://${ip}:80"]
 }
 
-output "a_web_servers2_public_ip_url" {
-  description = "The URL to access the web server2"
-  value       = "http://${aws_instance.a_web_server2.public_ip}:80"
+output "a_web_servers_public_dns_url" {
+  description = "The public DNS names of the web server(s)"
+  value      = [for dns in aws_instance.a_web_servers[*].public_dns : "${dns}"]
 }
 
-output "a_web_servers1_public_dns_url" {
-  description = "The public DNS names of the web server1"
-  value       = aws_instance.a_web_server1.public_dns
+output "a_web_servers_vpc_id" {
+  description = "the VPC ID of the web server(s)"
+  value       = [for vpc in aws_instance.a_web_servers[*].vpc_security_group_ids : "${vpc}"]
 }
-
-output "a_web_servers2_public_dns_url" {
-  description = "The public DNS names of the web server2"
-  value       = aws_instance.a_web_server2.public_dns
-}
-
-output "a_web_servers1_vpc_id" {
-  description = "the VPC ID of the web server1"
-  value       = aws_instance.a_web_server1.vpc_security_group_ids
-}
-
-output "a_web_servers2_vpc_id" {
-  description = "the VPC ID of the web server2"
-  value       = aws_instance.a_web_server2.vpc_security_group_ids
-}
-
-output "a_web_servers1_subnet_id" {
-  description = "the Subnet ID of the web server1"
-  value       = aws_instance.a_web_server1.subnet_id
-}
-
-output "a_web_servers2_subnet_id" {
-  description = "the Subnet ID of the web server2"
-  value       = aws_instance.a_web_server2.subnet_id
+output "a_web_servers_subnet_id" {
+  description = "the Subnet ID of the web server(s)"
+  value = [for subnet in aws_instance.a_web_servers[*].subnet_id : "${subnet}"]
 }
 
 output "a_web_lb_dns_name" {

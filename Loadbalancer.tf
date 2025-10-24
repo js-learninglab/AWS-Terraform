@@ -7,7 +7,7 @@ resource "aws_lb" "a_web_lb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.a_web_lb_sg.id]
-  subnets            = [aws_subnet.a_web_subnet1.id, aws_subnet.a_web_subnet2.id]
+  subnets            = aws_subnet.a_web_subnets[*].id
   depends_on         = [aws_s3_bucket_policy.a_s3_bucket_policy]
 
   enable_deletion_protection = false
@@ -18,7 +18,7 @@ resource "aws_lb" "a_web_lb" {
     enabled = true
   }
 
-  tags = merge(local.common_tags, { Name = "${local.prefix}-lb" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-lb" })
 }
 
 # create aws lb target group
@@ -28,7 +28,7 @@ resource "aws_lb_target_group" "a_web_lb_tg" {
   protocol = "HTTP" #doesn't like variable here and also case sensitive
   vpc_id   = aws_vpc.a_vpc.id
 
-  tags = merge(local.common_tags, { Name = "${local.prefix}-lb-tg" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-lb-tg" })
 }
 
 # create aws lb listener
@@ -42,19 +42,15 @@ resource "aws_lb_listener" "a_web_lb_listener" {
     target_group_arn = aws_lb_target_group.a_web_lb_tg.arn
   }
 
-  tags = merge(local.common_tags, { Name = "${local.prefix}-lb-listener" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-lb-listener" })
 }
 
-# create aws lb target group attachment
-resource "aws_lb_target_group_attachment" "a_web_lb_tg_attach1" {
+# create aws lb target group attachment for web servers
+resource "aws_lb_target_group_attachment" "a_web_lb_tg_attach" {
+  count = var.aws_web_server_count #reusing the web server count instead
   target_group_arn = aws_lb_target_group.a_web_lb_tg.arn
-  target_id        = aws_instance.a_web_server1.id
+  target_id        = aws_instance.a_web_servers[count.index].id
   port             = var.aws_tcp_80
 }
 
-resource "aws_lb_target_group_attachment" "a_web_lb_tg_attach2" {
-  target_group_arn = aws_lb_target_group.a_web_lb_tg.arn
-  target_id        = aws_instance.a_web_server2.id
-  port             = var.aws_tcp_80
-}
-
+# create aws lb target group attachment for web server2 >> REMOVED BECAUSE OF COUNT IN aws_lb_target_group_attachment a_web_lb_tg_attach 
