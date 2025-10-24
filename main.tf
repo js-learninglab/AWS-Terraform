@@ -64,8 +64,8 @@ resource "aws_vpc" "a_vpc" {
 
 #create aws vpc subnet
 resource "aws_subnet" "a_web_subnet1" {
-  vpc_id            = aws_vpc.a_vpc.id
-  cidr_block        = var.aws_vpc_a_web_subnets[0]
+  vpc_id     = aws_vpc.a_vpc.id
+  cidr_block = var.aws_vpc_a_web_subnets[0]
   //availability_zone = var.aws_us_west_regions[0]
   availability_zone = data.aws_availability_zones.available.names[0]
   //map_public_ip_on_launch = true  #commented as i want to control public IP assignment on VPC level
@@ -75,8 +75,8 @@ resource "aws_subnet" "a_web_subnet1" {
 
 #create aws vpc subnet 2
 resource "aws_subnet" "a_web_subnet2" {
-  vpc_id            = aws_vpc.a_vpc.id
-  cidr_block        = var.aws_vpc_a_web_subnets[1]
+  vpc_id     = aws_vpc.a_vpc.id
+  cidr_block = var.aws_vpc_a_web_subnets[1]
   //availability_zone = var.aws_us_west_regions[1]
   availability_zone = data.aws_availability_zones.available.names[1]
   //map_public_ip_on_launch = true  #commented as i want to control public IP assignment on VPC level
@@ -99,7 +99,7 @@ resource "aws_route_table" "a_rt" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.a_igw.id
   }
-  tags = merge(local.common_tags, { Name = "${local.prefix}-rt" })  
+  tags = merge(local.common_tags, { Name = "${local.prefix}-rt" })
 }
 
 #associate aws routing table with public subnet
@@ -187,8 +187,8 @@ resource "aws_instance" "a_web_server1" {
   #subnet_id                  = module.vpc1.public_subnets[0]
   vpc_security_group_ids      = [aws_security_group.a_web_sg.id]
   associate_public_ip_address = true
-  iam_instance_profile = aws_iam_instance_profile.a_allow_web_servers_s3_profile.name
-  depends_on = [ aws_iam_role_policy.a_allow_web_servers_s3_policy ]
+  iam_instance_profile        = aws_iam_instance_profile.a_allow_web_servers_s3_profile.name
+  depends_on                  = [aws_iam_role_policy.a_allow_web_servers_s3_policy]
   user_data = templatefile("./templates/startupscript2.tpl", {
     s3_bucket_name = aws_s3_bucket.a_s3_bucket.id
   })
@@ -204,13 +204,13 @@ resource "aws_instance" "a_web_server2" {
   #subnet_id                  = module.vpc1.public_subnets[1]
   vpc_security_group_ids      = [aws_security_group.a_web_sg.id]
   associate_public_ip_address = true
-  iam_instance_profile = aws_iam_instance_profile.a_allow_web_servers_s3_profile.name
-  depends_on = [ aws_iam_role_policy.a_allow_web_servers_s3_policy ]
+  iam_instance_profile        = aws_iam_instance_profile.a_allow_web_servers_s3_profile.name
+  depends_on                  = [aws_iam_role_policy.a_allow_web_servers_s3_policy]
   user_data = templatefile("./templates/startupscript2.tpl", {
     s3_bucket_name = aws_s3_bucket.a_s3_bucket.id
   })
 
-  tags =  merge(local.common_tags, { Name = "${local.prefix}a-web-server2" })
+  tags = merge(local.common_tags, { Name = "${local.prefix}a-web-server2" })
 }
 
 # create iam role
@@ -251,7 +251,7 @@ resource "aws_iam_role_policy" "a_allow_web_servers_s3_policy" {
         Action = [
           "s3:*"
         ]
-        Effect   = "Allow"
+        Effect = "Allow"
         Resource = [
           "arn:aws:s3:::${local.s3_bucket_name}",
           "arn:aws:s3:::${local.s3_bucket_name}/*"

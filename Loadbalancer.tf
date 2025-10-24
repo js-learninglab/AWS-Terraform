@@ -8,13 +8,13 @@ resource "aws_lb" "a_web_lb" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.a_web_lb_sg.id]
   subnets            = [aws_subnet.a_web_subnet1.id, aws_subnet.a_web_subnet2.id]
-  depends_on = [ aws_s3_bucket.a_s3_bucket ]
+  depends_on         = [aws_s3_bucket_policy.a_s3_bucket_policy]
 
   enable_deletion_protection = false
 
   access_logs {
-    bucket = aws_s3_bucket.a_s3_bucket.bucket
-    prefix = "a-web-lb-logs"
+    bucket  = aws_s3_bucket.a_s3_bucket.bucket
+    prefix  = "a-web-lb-logs"
     enabled = true
   }
 
@@ -38,7 +38,7 @@ resource "aws_lb_listener" "a_web_lb_listener" {
   protocol          = "HTTP" #doesn't like variable here and also case sensitive
 
   default_action {
-    type = "forward"
+    type             = "forward"
     target_group_arn = aws_lb_target_group.a_web_lb_tg.arn
   }
 
@@ -47,14 +47,14 @@ resource "aws_lb_listener" "a_web_lb_listener" {
 
 # create aws lb target group attachment
 resource "aws_lb_target_group_attachment" "a_web_lb_tg_attach1" {
-    target_group_arn = aws_lb_target_group.a_web_lb_tg.arn
-    target_id        = aws_instance.a_web_server1.id
-    port             = var.aws_tcp_80
+  target_group_arn = aws_lb_target_group.a_web_lb_tg.arn
+  target_id        = aws_instance.a_web_server1.id
+  port             = var.aws_tcp_80
 }
 
 resource "aws_lb_target_group_attachment" "a_web_lb_tg_attach2" {
-    target_group_arn = aws_lb_target_group.a_web_lb_tg.arn
-    target_id        = aws_instance.a_web_server2.id
-    port             = var.aws_tcp_80
+  target_group_arn = aws_lb_target_group.a_web_lb_tg.arn
+  target_id        = aws_instance.a_web_server2.id
+  port             = var.aws_tcp_80
 }
 
