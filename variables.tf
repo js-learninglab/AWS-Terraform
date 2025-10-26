@@ -67,11 +67,14 @@ variable "aws_vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
+#this is now redundant because of cidrsubnet function is used dynamically to create subnets
+/*
 variable "aws_vpc_web_subnets_cidrs" {
   description = "The cidr for the AWS VPC web subnet."
   type        = list(string)
   default     = ["10.0.1.0/24", "10.0.2.0/24"]
 }
+*/
 
 variable "aws_us_west_regions" {
   description = "The availability zone for the AWS resources."

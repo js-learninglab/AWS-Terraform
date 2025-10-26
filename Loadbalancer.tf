@@ -7,7 +7,7 @@ resource "aws_lb" "a_web_lb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.a_web_lb_sg.id]
-  subnets            = aws_subnet.a_web_subnets[*].id
+  subnets            = module.aws_vpc.public_subnets
   depends_on         = [aws_s3_bucket_policy.a_s3_bucket_policy]
 
   enable_deletion_protection = false
@@ -26,7 +26,7 @@ resource "aws_lb_target_group" "a_web_lb_tg" {
   name     = "a-web-lb-tg"
   port     = var.aws_tcp_80
   protocol = "HTTP" #doesn't like variable here and also case sensitive
-  vpc_id   = aws_vpc.a_vpc.id
+  vpc_id   = module.aws_vpc.vpc_id
 
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-lb-tg" })
 }
