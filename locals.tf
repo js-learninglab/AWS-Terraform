@@ -9,8 +9,8 @@ locals {
   s3_bucket_name = "${lower(local.naming_prefix)}-s3-${random_integer.random_number.result}"
 
   website_content = {
-    website = "./Website/index.html"
-    image   = "./Website/JS_learningLab.png"
+    website = "website/index.html"
+    image   = "website/JS_learningLab.png"
   }
 }
 
