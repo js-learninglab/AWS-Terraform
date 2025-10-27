@@ -48,9 +48,9 @@ resource "aws_s3_bucket_policy" "a_s3_bucket_policy" {
 # create s3 object
 resource "aws_s3_object" "a_s3_website_content" {
   for_each = local.website_content
-  bucket = aws_s3_bucket.a_s3_bucket.bucket
-  key    = each.value
-  source = "${path.root}/${each.value}"
+  bucket   = aws_s3_bucket.a_s3_bucket.bucket
+  key      = each.value
+  source   = "${path.root}/${each.value}"
 
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-s3-website-content-${each.key}" })
 }

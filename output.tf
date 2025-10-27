@@ -12,7 +12,7 @@ output "a_web_servers_public_ip_url" {
 
 output "a_web_servers_public_dns_url" {
   description = "The public DNS names of the web server(s)"
-  value      = [for dns in aws_instance.a_web_servers[*].public_dns : "${dns}"]
+  value       = [for dns in aws_instance.a_web_servers[*].public_dns : "${dns}"]
 }
 
 output "a_web_servers_vpc_id" {
@@ -21,7 +21,7 @@ output "a_web_servers_vpc_id" {
 }
 output "a_web_servers_subnet_id" {
   description = "the Subnet ID of the web server(s)"
-  value = [for subnet in aws_instance.a_web_servers[*].subnet_id : "${subnet}"]
+  value       = [for subnet in aws_instance.a_web_servers[*].subnet_id : "${subnet}"]
 }
 
 output "a_web_lb_dns_name" {

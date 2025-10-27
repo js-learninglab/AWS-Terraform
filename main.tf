@@ -55,16 +55,16 @@ data "aws_availability_zones" "available" {
 
 #create aws vpc
 module "aws_vpc" {
-  source = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-modules/vpc/aws"
   version = "~> 6.5.0"
 
   cidr = var.aws_vpc_cidr
 
-  azs             = slice (data.aws_availability_zones.available.names,0,var.aws_web_subnet_count)
-  public_subnets  = [for subnet in range(var.aws_web_subnet_count): cidrsubnet(var.aws_vpc_cidr, 8, subnet)]
+  azs            = slice(data.aws_availability_zones.available.names, 0, var.aws_web_subnet_count)
+  public_subnets = [for subnet in range(var.aws_web_subnet_count) : cidrsubnet(var.aws_vpc_cidr, 8, subnet)]
 
-  enable_nat_gateway = false #very expensive!
-  enable_vpn_gateway = false #not needed for this lab
+  enable_nat_gateway   = false #very expensive!
+  enable_vpn_gateway   = false #not needed for this lab
   enable_dns_hostnames = var.aws_vpc_enable_dns_hostnames
 
   tags = merge(local.common_tags, { name = "${local.naming_prefix}-vpc" })
@@ -130,7 +130,7 @@ resource "aws_security_group" "a_web_sg" {
   name        = "a_web_sg"
   description = "Allow HTTP  and HTTPS inbound traffic"
   //vpc_id      = aws_vpc.a_vpc.id
-  vpc_id      = module.aws_vpc.vpc_id
+  vpc_id = module.aws_vpc.vpc_id
 
   ingress {
     description = "HTTP from anywhere"
@@ -144,6 +144,14 @@ resource "aws_security_group" "a_web_sg" {
     description = "HTTPS from anywhere"
     from_port   = var.aws_tcp_443
     to_port     = var.aws_tcp_443
+    protocol    = var.aws_protocol_tcp
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "SSH from anywhere"
+    from_port   = 22
+    to_port     = 22
     protocol    = var.aws_protocol_tcp
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -197,8 +205,8 @@ resource "aws_instance" "a_web_servers" {
   instance_type = var.aws_instance_type
   #using modulo to distribute instances across total count of subnets in the event of more instances are provisioned
   #subnet_id     = aws_subnet.a_web_subnets[(count.index % var.aws_web_subnet_count)].id
-  subnet_id     = module.aws_vpc.public_subnets[(count.index % var.aws_web_subnet_count)]
-  count         = var.aws_web_server_count
+  subnet_id                   = module.aws_vpc.public_subnets[(count.index % var.aws_web_subnet_count)]
+  count                       = var.aws_web_server_count
   vpc_security_group_ids      = [aws_security_group.a_web_sg.id]
   associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.a_allow_web_servers_s3_profile.name
