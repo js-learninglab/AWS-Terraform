@@ -138,7 +138,7 @@ resource "aws_security_group" "a_web_sg" {
     to_port     = var.aws_tcp_80
     protocol    = var.aws_protocol_tcp
     cidr_blocks = [var.aws_vpc_cidr]
-  }
+    }
 
   ingress {
     description = "HTTPS from anywhere"

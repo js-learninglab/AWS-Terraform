@@ -85,7 +85,7 @@ variable "aws_us_west_regions" {
 variable "aws_protocol_tcp" {
   description = "The TCP protocol."
   type        = string
-  default     = "TCP"
+  default     = "tcp"
 }
 
 variable "aws_tcp_80" {
@@ -126,6 +126,25 @@ variable "aws_naming_prefix" {
   type        = string
   default     = "JSLearningLab"
 }
+
+variable "aws_s3_bucket_name" {
+  description = "The name of the S3 bucket."
+  type        = string
+  default     = "S3storage"
+}
+
+variable "elb_service_account_arn" {
+  description = "The AWS ELB service account ARN."
+  type        = string
+  default     = "arn:aws:iam::127311923021:root"
+} 
+
+variable "common_tags" {
+  description = "Common tag Project for all resources."
+  type        = map(string)
+  default = {}
+}
+
 
 /*
   ██████   ██████ ██████  
