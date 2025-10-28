@@ -13,7 +13,7 @@ resource "aws_lb" "a_web_lb" {
   enable_deletion_protection = false
 
   access_logs {
-    bucket  = aws_s3_bucket.a_s3_bucket.bucket
+    bucket  = module.aws_s3.s3_bucket_id
     prefix  = "a-web-lb-logs"
     enabled = true
   }

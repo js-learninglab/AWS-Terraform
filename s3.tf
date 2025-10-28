@@ -1,13 +1,15 @@
-# create s3 bucket
+/*
+# create s3 bucket >> this is removed because i have introduced s3 bucket module in main.tf
 resource "aws_s3_bucket" "a_s3_bucket" {
   bucket        = local.s3_bucket_name
   force_destroy = true
   tags          = merge(local.common_tags, { Name = lower("${local.naming_prefix}-s3-bucket") })
 }
+*/
 
 # create s3 bucket policy
 resource "aws_s3_bucket_policy" "a_s3_bucket_policy" {
-  bucket = aws_s3_bucket.a_s3_bucket.id
+  bucket = module.aws_s3.s3_bucket_id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -48,7 +50,7 @@ resource "aws_s3_bucket_policy" "a_s3_bucket_policy" {
 # create s3 object
 resource "aws_s3_object" "a_s3_website_content" {
   for_each = local.website_content
-  bucket   = aws_s3_bucket.a_s3_bucket.bucket
+  bucket   = module.aws_s3.s3_bucket_id
   key      = each.value
   source   = "${path.root}/${each.value}"
 
