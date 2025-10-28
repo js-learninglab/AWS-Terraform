@@ -137,7 +137,8 @@ resource "aws_security_group" "a_web_sg" {
     from_port   = var.aws_tcp_80
     to_port     = var.aws_tcp_80
     protocol    = var.aws_protocol_tcp
-    cidr_blocks = [var.aws_vpc_cidr]
+    cidr_blocks = ["10.0.0.0/16"]
+    security_groups = [aws_security_group.a_web_lb_sg.id]
     }
 
   ingress {

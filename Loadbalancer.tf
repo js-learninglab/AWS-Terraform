@@ -47,7 +47,7 @@ resource "aws_lb_listener" "a_web_lb_listener" {
 
 # create aws lb target group attachment for web servers
 resource "aws_lb_target_group_attachment" "a_web_lb_tg_attach" {
-  count            = var.aws_web_server_count #reusing the web server count instead
+  count = var.aws_web_server_count #reusing the web server count instead
   target_group_arn = aws_lb_target_group.a_web_lb_tg.arn
   target_id        = aws_instance.a_web_servers[count.index].id
   port             = var.aws_tcp_80
