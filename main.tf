@@ -53,7 +53,7 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
-#create aws vpc
+#create aws vpc using module
 module "aws_vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 6.5.0"
@@ -70,6 +70,18 @@ module "aws_vpc" {
   tags = merge(local.common_tags, { name = "${local.naming_prefix}-vpc" })
 }
 #removing below aws vpc creation as i am using vpc module now
+
+# create aws s3 bucket using module
+module "aws_s3" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "~> 5.8.0"
+
+  bucket = local.s3_bucket_name
+
+  force_destroy = true
+
+  tags = merge(local.common_tags, { Name = lower("${local.naming_prefix}-s3-bucket") })
+}
 
 #commenting vpc creation to use vpc module instead
 /*
