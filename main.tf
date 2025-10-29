@@ -225,7 +225,7 @@ resource "aws_instance" "a_web_servers" {
   iam_instance_profile        = aws_iam_instance_profile.a_allow_web_servers_s3_profile.name
   depends_on                  = [aws_iam_role_policy.a_allow_web_servers_s3_policy]
   user_data = templatefile("./templates/startupscript2.tpl", {
-    s3_bucket_name = aws_s3_bucket.a_s3_bucket.id
+    s3_bucket_name = module.aws_s3.s3_bucket_id
   })
 
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-a-web-servers${count.index + 1}" })
