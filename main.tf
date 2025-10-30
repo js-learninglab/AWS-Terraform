@@ -145,13 +145,13 @@ resource "aws_security_group" "a_web_sg" {
   vpc_id = module.aws_vpc.vpc_id
 
   ingress {
-    description = "HTTP from anywhere"
-    from_port   = var.aws_tcp_80
-    to_port     = var.aws_tcp_80
-    protocol    = var.aws_protocol_tcp
-    cidr_blocks = ["10.0.0.0/16"]
+    description     = "HTTP from anywhere"
+    from_port       = var.aws_tcp_80
+    to_port         = var.aws_tcp_80
+    protocol        = var.aws_protocol_tcp
+    cidr_blocks     = ["10.0.0.0/16"]
     security_groups = [aws_security_group.a_web_lb_sg.id]
-    }
+  }
 
   ingress {
     description = "HTTPS from anywhere"
