@@ -161,6 +161,8 @@ resource "aws_security_group" "a_web_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # removing this for now as not required
+  /*
   ingress {
     description = "SSH from anywhere"
     from_port   = var.aws_tcp_22
@@ -168,9 +170,8 @@ resource "aws_security_group" "a_web_sg" {
     protocol    = var.aws_protocol_tcp
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  # this is not required as testing is done, so disabling for now
-  /*
+  */
+  
   egress {
     description = "Allow all outbound traffic"
     from_port   = var.aws_tcp_all
@@ -178,7 +179,7 @@ resource "aws_security_group" "a_web_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  */
+  
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-sg" })
 }
 
