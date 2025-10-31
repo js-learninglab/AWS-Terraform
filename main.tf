@@ -163,8 +163,8 @@ resource "aws_security_group" "a_web_sg" {
 
   ingress {
     description = "SSH from anywhere"
-    from_port   = 22
-    to_port     = 22
+    from_port   = var.aws_tcp_22
+    to_port     = var.aws_tcp_22
     protocol    = var.aws_protocol_tcp
     cidr_blocks = ["0.0.0.0/0"]
   }
