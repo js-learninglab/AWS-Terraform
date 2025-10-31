@@ -88,6 +88,12 @@ variable "aws_protocol_tcp" {
   default     = "tcp"
 }
 
+variable "aws_tcp_22" {
+  description = "The TCP port 22 for SSH."
+  type        = number
+  default     = 22
+}
+
 variable "aws_tcp_80" {
   description = "The TCP port 80 for HTTP."
   type        = number
