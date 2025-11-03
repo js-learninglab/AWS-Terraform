@@ -47,7 +47,7 @@ validate_attribute_in_list = func(type, attribute, allowed_values) {
   validated = true
 
   # Get all resource instances of the specified type
-  resource_instances_type = find_resources_from_plan(type)
+  resource_instances = find_resources_from_plan(type)
 
   # If there are no instances of the specified type, return true
     if length(resource_instances) == 0 {
