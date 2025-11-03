@@ -39,31 +39,19 @@ find_resources_from_plan = func(type) {
   return resources
 }
 
-find_resources_from_environment = func(resources, environments) {
-  resources_in_environment = {}
-  for resources as address, r {
-      if environments contains r.applied.tags_all.Environment {
-        resources_in_environment[address] = r
-      }
-    }
-    return resources_in_environment
-  }
 
 # Validate that all instances of a specified resource type being modified have
 # a specified top-level attribute in a given list
-validate_attribute_in_list = func(type, attribute, allowed_values, environments) {
+validate_attribute_in_list = func(type, attribute, allowed_values) {
 
   validated = true
 
   # Get all resource instances of the specified type
   resource_instances_type = find_resources_from_plan(type)
 
-  # Get all resource instances of the specified type in the specified environment
-  resource_instances = find_resources_from_environment(resource_instances_type, environments)
-
   # If there are no instances of the specified type, return true
     if length(resource_instances) == 0 {
-        print("No instances of type", type, "in environments", environments, "found.")
+        print("No instances of type", type, environments, "found.")
         return true
     }
   # Loop through the resource instances
@@ -108,13 +96,10 @@ allowed_types = [
   "t2.large",
 ]
 
-environment_tags = ["development"]
-
 ##### Rules #####
 
 # Call the validation function
-instances_validated = validate_attribute_in_list("aws_instance",
-                      "instance_type", allowed_types, environment_tags)
+instances_validated = validate_attribute_in_list("aws_instance","instance_type", allowed_types)
 
 # Main rule
 main = rule {
