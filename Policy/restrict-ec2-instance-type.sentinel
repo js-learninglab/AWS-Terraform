@@ -51,7 +51,7 @@ validate_attribute_in_list = func(type, attribute, allowed_values) {
 
   # If there are no instances of the specified type, return true
     if length(resource_instances) == 0 {
-        print("No instances of type", type, environments, "found.")
+        print("No instances of type", type, "found.")
         return true
     }
   # Loop through the resource instances
