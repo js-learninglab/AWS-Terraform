@@ -67,7 +67,7 @@ module "aws_vpc" {
   enable_vpn_gateway   = false #not needed for this lab
   enable_dns_hostnames = var.aws_vpc_enable_dns_hostnames
 
-  tags = merge(local.common_tags, { name = "${local.naming_prefix}-vpc" })
+  tags = merge(local.common_tags, { name = "${local.naming_prefix}-${var.environment}-vpc" })
 }
 #removing below aws vpc creation as i am using vpc module now
 
@@ -80,7 +80,7 @@ module "aws_s3" {
 
   force_destroy = true
 
-  tags = merge(local.common_tags, { Name = lower("${local.naming_prefix}-s3-bucket") })
+  tags = merge(local.common_tags, { Name = lower("${local.naming_prefix}-${var.environment}-s3-bucket") })
 }
 
 #commenting vpc creation to use vpc module instead
@@ -180,7 +180,7 @@ resource "aws_security_group" "a_web_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   
-  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-sg" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-sg" })
 }
 
 resource "aws_security_group" "a_web_lb_sg" {
@@ -212,7 +212,7 @@ resource "aws_security_group" "a_web_lb_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-lb-sg" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-lb-sg" })
 }
 
 #create virtual machine or aws_instance
@@ -231,7 +231,7 @@ resource "aws_instance" "a_web_servers" {
     s3_bucket_name = module.aws_s3.s3_bucket_id
   })
 
-  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-a-web-servers${count.index + 1}" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-a-web-servers${count.index + 1}" })
 }
 
 #create virtual machine or aws_instance >> REMOVED BECAUSE OF COUNT IN aws_instance a_web_servers
@@ -259,7 +259,7 @@ resource "aws_iam_instance_profile" "a_allow_web_servers_s3_profile" {
   name = "a_allow_web_servers_s3_profile"
   role = aws_iam_role.a_allow_web_servers_s3.name
 
-  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-a_allow_web_servers_s3_profile" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-a_allow_web_servers_s3_profile" })
 }
 
 # create iam role policy

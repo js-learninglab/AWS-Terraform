@@ -54,6 +54,6 @@ resource "aws_s3_object" "a_s3_website_content" {
   key      = each.value
   source   = "${path.root}/${each.value}"
 
-  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-s3-website-content-${each.key}" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-s3-website-content-${each.key}" })
 }
 # REMOVING THIS BECAUSE OF FOR_EACH IN aws_s3_object a_s3_website_content

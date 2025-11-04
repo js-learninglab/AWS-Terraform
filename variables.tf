@@ -31,6 +31,12 @@ variable "aws_region" {
   description = "AWS us-west-2 region"
 }
 
+variable "environment" {
+  description = "Environment identifier"
+  type        = string
+  default     = "dev"
+}
+
 #####NETWORKING######
 
 
