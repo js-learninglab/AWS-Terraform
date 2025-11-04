@@ -122,7 +122,7 @@ variable "aws_common_tags" {
   description = "Common tag Project for all AWS resources."
   type        = map(string)
   default = {
-    Owner   = "JS-LL"
+    Owner   = "Juli"
     Project = "AWS-TF"
   }
 }
