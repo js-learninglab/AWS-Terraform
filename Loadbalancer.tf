@@ -18,7 +18,7 @@ resource "aws_lb" "a_web_lb" {
     enabled = true
   }
 
-  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-lb" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-lb" })
 }
 
 # create aws lb target group
@@ -28,7 +28,7 @@ resource "aws_lb_target_group" "a_web_lb_tg" {
   protocol = "HTTP" #doesn't like variable here and also case sensitive
   vpc_id   = module.aws_vpc.vpc_id
 
-  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-lb-tg" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-lb-tg" })
 }
 
 # create aws lb listener
@@ -42,7 +42,7 @@ resource "aws_lb_listener" "a_web_lb_listener" {
     target_group_arn = aws_lb_target_group.a_web_lb_tg.arn
   }
 
-  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-lb-listener" })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-lb-listener" })
 }
 
 # create aws lb target group attachment for web servers
