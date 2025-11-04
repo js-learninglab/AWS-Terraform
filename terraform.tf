@@ -24,7 +24,7 @@ terraform {
 
     #workspace ID
     workspaces {
-      name = "js_learninglab_backend"
+      tags = "AWS-terraform"
     }
   }
 
