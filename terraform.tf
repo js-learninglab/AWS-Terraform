@@ -24,7 +24,7 @@ terraform {
 
     #workspace ID
     workspaces {
-      tags = ["AWS-terraform"]
+      tags = ["aws-terraform"]
     }
   }
 
