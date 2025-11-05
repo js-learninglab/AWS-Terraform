@@ -8,7 +8,7 @@ environment = "dev"
 #aws_region = "us-west-2"
 
 # Naming and Tagging
-aws_naming_prefix = "JSLearningLab-DEV"
+aws_naming_prefix = "JSLearningLab"
 aws_common_tags = {
   Owner       = "Juli"
   Project     = "AWS-TF"
