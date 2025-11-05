@@ -24,7 +24,7 @@ terraform {
 
     #workspace ID
     workspaces {
-      prefix = "AWS-terraform-"
+      tags = ["aws-terraform"]
     }
   }
 
