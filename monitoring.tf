@@ -17,7 +17,7 @@ resource "aws_cloudwatch_metric_alarm" "high_cpu_utilization" {
   namespace           = "AWS/EC2"
   period              = "120"
   statistic           = "Average"
-  threshold           = each.value.metric == "cpu" ? "80" : "1000000000" # 80% for CPU, 1GB for disk
+  threshold           = each.value.metric == "cpu" ? "50" : "1000000000" # 80% for CPU, 1GB for disk
 
   dimensions = {
     InstanceId = aws_instance.a_web_servers[each.value.instance - 1].id
