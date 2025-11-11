@@ -162,7 +162,7 @@ resource "aws_security_group" "a_web_sg" {
   }
 
   # removing this for now as not required
-  /*
+  
   ingress {
     description = "SSH from anywhere"
     from_port   = var.aws_tcp_22
@@ -170,7 +170,7 @@ resource "aws_security_group" "a_web_sg" {
     protocol    = var.aws_protocol_tcp
     cidr_blocks = ["0.0.0.0/0"]
   }
-  */
+  
 
   egress {
     description = "Allow all outbound traffic"
