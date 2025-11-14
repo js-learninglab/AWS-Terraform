@@ -52,13 +52,6 @@ data "aws_ami" "linux" {
 data "aws_availability_zones" "available" {
   state = "available"
 }
-#create key pair to deploy
-resource "Aws_key_pair" "a_ec2_ssh_key" {
-  key_name   = "a_ec2_ssh_key-${var.environment}"
-  public_key = var.EC2_SSH_PUBLIC_KEY
-
-  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-ec2-ssh-key" })
-}
 
 #create aws vpc using module
 module "aws_vpc" {
@@ -90,6 +83,13 @@ module "aws_s3" {
   tags = merge(local.common_tags, { Name = lower("${local.naming_prefix}-${var.environment}-s3-bucket") })
 }
 
+#create key pair to deploy
+resource "aws_key_pair" "a_ec2_ssh_key" {
+  key_name   = "a_ec2_ssh_key-${var.environment}"
+  public_key = var.EC2_SSH_PUBLIC_KEY
+
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-ec2-ssh-key" })
+}
 #commenting vpc creation to use vpc module instead
 /*
 resource "aws_vpc" "a_vpc" {
