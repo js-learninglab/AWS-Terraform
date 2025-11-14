@@ -157,7 +157,11 @@ variable "common_tags" {
   default     = {}
 }
 
-
+variable "EC2_SSH_PUBLIC_KEY" {
+  description = "Public key for SSH access to EC2 instances."
+  type        = string
+  sensitive   = true
+}
 /*
   ██████   ██████ ██████  
  ██       ██      ██   ██ 
