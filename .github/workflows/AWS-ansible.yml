@@ -1,0 +1,58 @@
+name: 'Ansible Deploy'
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - AWS-Terraform-dev
+          - AWS-Terraform-prod
+
+jobs:
+  ansible:
+    name: 'Configure ${{ github.event.inputs.environment }}'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment == 'AWS-Terraform-dev' && 'development' || 'production' }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        cli_config_credentials_token: ${{ secrets.ACTIONS_TOKEN_FROM_TF_IO }}
+        terraform_wrapper: false
+
+    # Select correct workspace based on environment
+    - name: Terraform Init
+      run: |
+        terraform init
+        terraform workspace select ${{ github.event.inputs.environment }}
+
+    - name: Get EC2 Instance IPs
+      run: |
+        echo "Fetching IPs from ${{ github.event.inputs.environment }} environment..."
+        terraform output -json > tf-outputs.json
+        cat tf-outputs.json
+
+    - name: Setup SSH Key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+    - name: Install Ansible
+      run: |
+        pip install ansible
+        ansible --version
+
+    - name: Configure Servers
+      run: |
+        cd ansible
+        ansible-playbook -i inventory/aws_ec2.yml playbooks/site.yml \
+          -e "env=${{ github.event.inputs.environment }}"

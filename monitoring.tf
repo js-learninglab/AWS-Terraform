@@ -49,7 +49,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_unhealthy_host" {
   threshold           = "0"
 
   dimensions = {
-    TargetGroup = aws_lb_target_group.a_web_lb_tg.arn_suffix
+    TargetGroup  = aws_lb_target_group.a_web_lb_tg.arn_suffix
     LoadBalancer = aws_lb.a_web_lb.arn_suffix
   }
 
@@ -170,4 +170,31 @@ resource "aws_cloudwatch_dashboard" "js_learninglab_dashboard" {
     ]
   })
 
+}
+
+
+### create log group
+resource "aws_cloudwatch_log_group" "aws_cloudwatch_access_log_group" {
+  name              = "nginx_access_logs-${var.environment}"
+  retention_in_days = 7
+  tags = merge(
+    local.common_tags,
+    {
+      Environment = var.environment
+      Name        = "${local.prefix}-nginx-access-log-${var.environment}"
+    }
+  )
+}
+
+resource "aws_cloudwatch_log_group" "aws_cloudwatch_error_log_group" {
+  name              = "nginx_error_logs-${var.environment}"
+  retention_in_days = 7
+
+  tags = merge(
+    local.common_tags,
+    {
+      Environment = var.environment
+      Name        = "${local.prefix}-nginx-error-log-${var.environment}"
+    }
+  )
 }

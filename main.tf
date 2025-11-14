@@ -52,6 +52,13 @@ data "aws_ami" "linux" {
 data "aws_availability_zones" "available" {
   state = "available"
 }
+#create key pair to deploy
+resource "Aws_key_pair" "a_ec2_ssh_key" {
+  key_name   = "a_ec2_ssh_key-${var.environment}"
+  public_key = var.EC2_SSH_PUBLIC_KEY
+
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-ec2-ssh-key" })
+}
 
 #create aws vpc using module
 module "aws_vpc" {
@@ -162,7 +169,7 @@ resource "aws_security_group" "a_web_sg" {
   }
 
   # removing this for now as not required
-  
+
   ingress {
     description = "SSH from anywhere"
     from_port   = var.aws_tcp_22
@@ -170,7 +177,7 @@ resource "aws_security_group" "a_web_sg" {
     protocol    = var.aws_protocol_tcp
     cidr_blocks = ["0.0.0.0/0"]
   }
-  
+
 
   egress {
     description = "Allow all outbound traffic"
@@ -223,6 +230,7 @@ resource "aws_instance" "a_web_servers" {
   #subnet_id     = aws_subnet.a_web_subnets[(count.index % var.aws_web_subnet_count)].id
   subnet_id                   = module.aws_vpc.public_subnets[(count.index % var.aws_web_subnet_count)]
   count                       = var.aws_web_server_count
+  key_name                    = aws_key_pair.a_ec2_ssh_key.key_name
   vpc_security_group_ids      = [aws_security_group.a_web_sg.id]
   associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.a_allow_web_servers_s3_profile.name
@@ -236,53 +244,7 @@ resource "aws_instance" "a_web_servers" {
 
 #create virtual machine or aws_instance >> REMOVED BECAUSE OF COUNT IN aws_instance a_web_servers
 
-# create iam role
-resource "aws_iam_role" "a_allow_web_servers_s3" {
-  name = "a_allow_web_servers_s3"
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-# create iam instance profile
-resource "aws_iam_instance_profile" "a_allow_web_servers_s3_profile" {
-  name = "a_allow_web_servers_s3_profile"
-  role = aws_iam_role.a_allow_web_servers_s3.name
-
-  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-a_allow_web_servers_s3_profile" })
-}
-
-# create iam role policy
-resource "aws_iam_role_policy" "a_allow_web_servers_s3_policy" {
-  name = "a_allow_web_servers_s3_policy"
-  role = aws_iam_role.a_allow_web_servers_s3.name
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "s3:*"
-        ]
-        Effect = "Allow"
-        Resource = [
-          "arn:aws:s3:::${local.s3_bucket_name}",
-          "arn:aws:s3:::${local.s3_bucket_name}/*"
-        ]
-      }
-    ]
-  })
-}
 
 /*
   ██████   ██████ ██████  
