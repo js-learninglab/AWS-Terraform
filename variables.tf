@@ -73,6 +73,12 @@ variable "aws_vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
+variable "juli_public_ip" {
+  description = "a list of my public IP addresses for SSH access"
+  type        = list(string)
+  default     = ["167.103.62.209/32"]
+}
+
 #this is now redundant because of cidrsubnet function is used dynamically to create subnets
 /*
 variable "aws_vpc_web_subnets_cidrs" {

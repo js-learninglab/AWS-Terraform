@@ -147,7 +147,7 @@ resource "aws_route_table_association" "a_rt_assoc_subnets" {
 # Security group
 resource "aws_security_group" "a_web_sg" {
   name        = "a_web_sg"
-  description = "Allow HTTP  and HTTPS inbound traffic"
+  description = "Allow HTTP and HTTPS inbound traffic"
   //vpc_id      = aws_vpc.a_vpc.id
   vpc_id = module.aws_vpc.vpc_id
 
@@ -169,13 +169,13 @@ resource "aws_security_group" "a_web_sg" {
   }
 
   # removing this for now as not required
-
+  #not liking this, seems like a backdoor
   ingress {
-    description = "SSH from anywhere"
+    description = "SSH from my IP"
     from_port   = var.aws_tcp_22
     to_port     = var.aws_tcp_22
     protocol    = var.aws_protocol_tcp
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.juli_public_ip
   }
 
 
