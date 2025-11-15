@@ -2,12 +2,6 @@
 ### still not familiar with ansible, using chat ai to convert the nginx setup from startupscript2.tpl to yml instead
 
 ---
-
-- name: Install and configure Nginx
-  hosts: all
-  become: true
-  
-
   ### this task is "sudo amazon-linux-extras install -y nginx1"
   tasks:
     - name: Install Nginx
