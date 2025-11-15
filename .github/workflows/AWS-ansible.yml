@@ -67,6 +67,20 @@ jobs:
         ansible --version
         echo "Ansible and required AWS dependencies installed"
 
+    - name: Debug - Check GitHub Runner IP
+      env:
+        TF_WORKSPACE: ${{ github.event.inputs.environment }}
+        
+      run: |
+        echo "=== GitHub Actions Runner IP Address ==="
+        curl -s ifconfig.me
+        echo ""
+        echo "^^^ This IP needs SSH access (port 22) in your security group!"
+        echo ""
+        echo "=== Target EC2 Instances ==="
+        echo "Attempting to connect to:"
+        terraform output -json a_web_servers_public_ip_url | jq -r '.[]'
+
     - name: Configure Servers
       env:
         AWS_REGION: us-west-2
