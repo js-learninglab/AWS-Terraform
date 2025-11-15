@@ -1,1 +1,9 @@
 ### MAIN PLAYBOOK ###
+
+- name: Configure Web Servers
+  hosts: all
+  become: true
+  
+  tasks:
+    - name: Import Nginx playbook
+      import_tasks: nginx.yml
