@@ -1,1 +1,76 @@
 ### this yml is for configuring nginx on ec2 instances
+### still not familiar with ansible, using chat ai to convert the nginx setup from startupscript2.tpl to yml instead
+
+---
+
+- name: Install and configure Nginx
+  hosts: all
+  become: true
+  
+
+  ### this task is "sudo amazon-linux-extras install -y nginx1"
+  tasks:
+    - name: Install Nginx
+      command: amazon-linux-extras install -y nginx1
+      args:
+        creates: /usr/sbin/nginx
+
+  ### this task is "sudo service nginx start"
+    - name: Start Nginx service
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+  ### this task is "sleep 10"
+    - name: Wait for Nginx to be ready
+      wait_for:
+        timeout: 10
+
+  ### this task is "aws s3 cp s3://${s3_bucket_name}/website/index.html /home/ec2-user/index.html"
+    - name: Download index.html from S3
+      aws_s3:
+        bucket: "{{ s3_bucket_name }}"
+        object: website/index.html
+        dest: /home/ec2-user/index.html
+        mode: get
+
+  ### this task is "aws s3 cp s3://${s3_bucket_name}/website/JS_learningLab.png /home/ec2-user/JS_learningLab.png"
+    - name: Download logo image from S3
+      aws_s3:
+        bucket: "{{ s3_bucket_name }}"
+        object: website/JS_learningLab.png
+        dest: /home/ec2-user/JS_learningLab.png
+        mode: get
+
+  ### this task is "sudo rm /usr/share/nginx/html/index.html"
+    - name: Remove default Nginx index.html
+      file:
+        path: /usr/share/nginx/html/index.html
+        state: absent
+
+  ### this task is "sudo cp /home/ec2-user/index.html /usr/share/nginx/html/index.html"
+    - name: Copy custom index.html to web directory
+      copy:
+        src: /home/ec2-user/index.html
+        dest: /usr/share/nginx/html/index.html
+        remote_src: yes
+        owner: root
+        group: root
+        mode: '0644'
+
+  ### this task is "sudo cp /home/ec2-user/JS_learningLab.png /usr/share/nginx/html/JS_learningLab.png"
+    - name: Copy logo to web directory
+      copy:
+        src: /home/ec2-user/JS_learningLab.png
+        dest: /usr/share/nginx/html/JS_learningLab.png
+        remote_src: yes
+        owner: root
+        group: root
+        mode: '0644'
+
+  ### this task is "sudo service nginx restart"
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
