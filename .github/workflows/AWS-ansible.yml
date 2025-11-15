@@ -50,7 +50,7 @@ jobs:
         echo "Fetching S3 bucket name from Terraform"
         S3_BUCKET=$(terraform output -raw a_s3_bucket_name)
         echo "S3 Bucket: $S3_BUCKET" >> $GITHUB_ENV
-        echo " S3 Bucket: $S3_BUCKET"
+        echo "S3 Bucket: $S3_BUCKET"
 
     - name: Setup SSH Key
       run: |
