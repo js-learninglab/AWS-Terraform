@@ -6,7 +6,7 @@ on:
       environment:
         description: 'Environment to deploy'
         required: true
-        default: 'AWS-Terraformdev'
+        default: 'AWS-Terraform-dev'
         type: choice
         options:
           - AWS-Terraform-dev
@@ -41,7 +41,7 @@ jobs:
         TF_WORKSPACE: ${{ github.event.inputs.environment }}
       run: |
         terraform init
-        echo " Using workspace: "${{ github.event.inputs.environment }}""
+        echo "Using workspace: "${{ github.event.inputs.environment }}""
 
     - name: Get S3 Bucket Name
       env:
@@ -49,7 +49,7 @@ jobs:
       run: |
         echo "Fetching S3 bucket name from Terraform"
         S3_BUCKET=$(terraform output -raw a_s3_bucket_name)
-        echo "S3_Bucket=$S3_BUCKET" >> $GITHUB_ENV
+        echo "S3_BUCKET=$S3_BUCKET" >> $GITHUB_ENV
         echo "Fetched S3 bucket name: $S3_BUCKET"
        # echo "S3 Bucket: $S3_BUCKET"
 
@@ -78,5 +78,5 @@ jobs:
         echo "Environment: ${{ github.event.inputs.environment }}"
         echo "S3 Bucket: ${{ env.S3_BUCKET }}"
 
-        ansible-playbook -i inventory/aws_ec2.yml Playbooks/site.yml \
+        ansible-playbook -i Inventory/aws_ec2.yml Playbooks/site.yml \
           -e "s3_bucket_name=${{ env.S3_BUCKET }}"

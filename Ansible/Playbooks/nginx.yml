@@ -3,7 +3,6 @@
 
 ---
   ### this task is "sudo amazon-linux-extras install -y nginx1"
-  tasks:
     - name: Install Nginx
       command: amazon-linux-extras install -y nginx1
       args:
