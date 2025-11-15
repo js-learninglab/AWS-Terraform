@@ -47,7 +47,7 @@ jobs:
       env:
         TF_WORKSPACE: ${{ github.event.inputs.environment }}
       run: |
-        echo "Fetching S3 bucket name from Terraform
+        echo "Fetching S3 bucket name from Terraform"
         S3_BUCKET=$(terraform output -raw a_s3_bucket_name)
         echo "S3 Bucket: $S3_BUCKET" >> $GITHUB_ENV
         echo " S3 Bucket: $S3_BUCKET"
