@@ -1,0 +1,52 @@
+
+### creating this yml for dynamic inventory of aws ec2 instances
+
+plugin: amazon.aws.aws_ec2
+
+regions:
+  - us-west-2
+
+filters:
+  tag:Project: AWS-TF
+  tag:Owner: Juli
+  instance-state-name: running
+
+keyed_groups:
+  - key: tags.Environment
+    prefix: env
+  - key: tags.Name
+    prefix: name
+
+hostnames:
+  - dns-name
+  - public-ip-address
+
+compose:
+  ansible_host: public_ip_address
+
+## **What This Does:**
+
+### **`plugin: amazon.aws.aws_ec2`**
+#- Uses AWS EC2 dynamic inventory plugin
+#- Automatically queries AWS for instances
+
+### **`regions:`**
+#- Which AWS region to search
+#- Your instances are in `us-west-2`
+
+### **`filters:`**
+#- Only find instances with these tags
+#- Matches your Terraform tags!
+#- Only includes **running** instances (not stopped/terminated)
+
+### **`keyed_groups:`**
+#- Creates inventory groups based on tags
+#- `env_dev` group for Environment=dev
+#- `env_prod` group for Environment=prod
+
+### **`hostnames:`**
+#- Prefer DNS name, fallback to public IP
+#- How Ansible identifies each host
+
+### **`compose:`**
+#- Use public IP for SSH connections

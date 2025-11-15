@@ -29,6 +29,11 @@ output "a_web_lb_dns_name" {
   value       = aws_lb.a_web_lb.dns_name
 }
 
+output "a_s3_bucket_name" {
+  description = "The name of the S3 bucket"
+  value       = module.aws_s3.s3_bucket_id
+}
+
 /*
   ██████   ██████ ██████  
  ██       ██      ██   ██ 
