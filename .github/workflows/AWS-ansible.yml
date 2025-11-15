@@ -6,17 +6,24 @@ on:
       environment:
         description: 'Environment to deploy'
         required: true
-        default: 'dev'
+        default: 'AWS-Terraformdev'
         type: choice
         options:
           - AWS-Terraform-dev
           - AWS-Terraform-prod
+
+permissions:
+  contents: read
 
 jobs:
   ansible:
     name: 'Configure ${{ github.event.inputs.environment }}'
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment == 'AWS-Terraform-dev' && 'development' || 'production' }}
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
     - name: Checkout
@@ -30,29 +37,45 @@ jobs:
 
     # Select correct workspace based on environment
     - name: Terraform Init
+      env:
+        TF_WORKSPACE: ${{ github.event.inputs.environment }}
       run: |
         terraform init
-        terraform workspace select ${{ github.event.inputs.environment }}
+        echo " Using workspace: "${{ github.event.inputs.environment }}""
 
-    - name: Get EC2 Instance IPs
+    - name: Get S3 Bucket Name
+      env:
+        TF_WORKSPACE: ${{ github.event.inputs.environment }}
       run: |
-        echo "Fetching IPs from ${{ github.event.inputs.environment }} environment..."
-        terraform output -json > tf-outputs.json
-        cat tf-outputs.json
+        echo "Fetching S3 bucket name from Terraform
+        S3_BUCKET=$(terraform output -raw a_s3_bucket_name)
+        echo "S3 Bucket: $S3_BUCKET" >> $GITHUB_ENV
+        echo " S3 Bucket: $S3_BUCKET"
 
     - name: Setup SSH Key
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
+        echo "SSH key configured"
 
-    - name: Install Ansible
+    - name: Install Ansible and required dependencies
       run: |
-        pip install ansible
+        pip install ansible boto3 botocore
+        ansible-galaxy collection install amazon.aws
         ansible --version
+        echo "Ansible and required AWS dependencies installed"
 
     - name: Configure Servers
+      env:
+        AWS_REGION: us-west-2
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
       run: |
         cd ansible
+        echo "Running Ansible playbook"
+        echo "Environment: ${{ github.event.inputs.environment }}"
+        echo "S3 Bucket: ${{ env.S3_BUCKET }}"
+
         ansible-playbook -i inventory/aws_ec2.yml playbooks/site.yml \
-          -e "env=${{ github.event.inputs.environment }}"
+          -e "s3_bucket_name=${{ env.S3_BUCKET }}"
