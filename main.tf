@@ -171,13 +171,21 @@ resource "aws_security_group" "a_web_sg" {
   # removing this for now as not required
   #not liking this, seems like a backdoor
   ingress {
-    description = "SSH from my IP"
+    description = "SSH from GitHub Actions and my IP"
     from_port   = var.aws_tcp_22
     to_port     = var.aws_tcp_22
     protocol    = var.aws_protocol_tcp
-    cidr_blocks = var.juli_public_ip
+    cidr_blocks = ["0.0.0.0/0"]
+    /*cidr_blocks = concat(
+      var.juli_public_ip, # my public IPs
+      [
+        "4.175.114.0/24", # GitHub Actions
+        "13.64.0.0/11",   # GitHub Actions
+        "20.0.0.0/8",     # GitHub Actions (Azure)
+        "40.64.0.0/10",   # GitHub Actions (Azure)
+      ]
+    )*/
   }
-
 
   egress {
     description = "Allow all outbound traffic"

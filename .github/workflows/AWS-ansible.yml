@@ -6,17 +6,24 @@ on:
       environment:
         description: 'Environment to deploy'
         required: true
-        default: 'dev'
+        default: 'AWS-Terraform-dev'
         type: choice
         options:
           - AWS-Terraform-dev
           - AWS-Terraform-prod
+
+permissions:
+  contents: read
 
 jobs:
   ansible:
     name: 'Configure ${{ github.event.inputs.environment }}'
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment == 'AWS-Terraform-dev' && 'development' || 'production' }}
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
     - name: Checkout
@@ -30,29 +37,60 @@ jobs:
 
     # Select correct workspace based on environment
     - name: Terraform Init
+      env:
+        TF_WORKSPACE: ${{ github.event.inputs.environment }}
       run: |
         terraform init
-        terraform workspace select ${{ github.event.inputs.environment }}
+        echo "Using workspace: "${{ github.event.inputs.environment }}""
 
-    - name: Get EC2 Instance IPs
+    - name: Get S3 Bucket Name
+      env:
+        TF_WORKSPACE: ${{ github.event.inputs.environment }}
       run: |
-        echo "Fetching IPs from ${{ github.event.inputs.environment }} environment..."
-        terraform output -json > tf-outputs.json
-        cat tf-outputs.json
+        echo "Fetching S3 bucket name from Terraform"
+        S3_BUCKET=$(terraform output -raw a_s3_bucket_name)
+        echo "S3_BUCKET=$S3_BUCKET" >> $GITHUB_ENV
+        echo "Fetched S3 bucket name: $S3_BUCKET"
+       # echo "S3 Bucket: $S3_BUCKET"
 
     - name: Setup SSH Key
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
+        echo "SSH key configured"
 
-    - name: Install Ansible
+    - name: Install Ansible and required dependencies
       run: |
-        pip install ansible
+        pip install ansible boto3 botocore
+        ansible-galaxy collection install amazon.aws
         ansible --version
+        echo "Ansible and required AWS dependencies installed"
+
+    - name: Debug - Check GitHub Runner IP
+      env:
+        TF_WORKSPACE: ${{ github.event.inputs.environment }}
+        
+      run: |
+        echo "=== GitHub Actions Runner IP Address ==="
+        curl -s ifconfig.me
+        echo ""
+        echo "^^^ This IP needs SSH access (port 22) in your security group!"
+        echo ""
+        echo "=== Target EC2 Instances ==="
+        echo "Attempting to connect to:"
+        terraform output -json a_web_servers_public_ip_url | jq -r '.[]'
 
     - name: Configure Servers
+      env:
+        AWS_REGION: us-west-2
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
       run: |
-        cd ansible
-        ansible-playbook -i inventory/aws_ec2.yml playbooks/site.yml \
-          -e "env=${{ github.event.inputs.environment }}"
+        cd Ansible
+        echo "Running Ansible playbook"
+        echo "Environment: ${{ github.event.inputs.environment }}"
+        echo "S3 Bucket: ${{ env.S3_BUCKET }}"
+
+        ansible-playbook -i Inventory/aws_ec2.yml Playbooks/site.yml \
+          -e "s3_bucket_name=${{ env.S3_BUCKET }}"
