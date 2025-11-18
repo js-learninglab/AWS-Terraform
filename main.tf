@@ -86,7 +86,7 @@ module "aws_s3" {
 #create key pair to deploy
 resource "aws_key_pair" "a_ec2_ssh_key" {
   key_name   = "a_ec2_ssh_key-${var.environment}"
-  public_key = var.EC2_SSH_PUBLIC_KEY
+  public_key = var.ec2_ssh_public_key
 
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-ec2-ssh-key" })
 }
