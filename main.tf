@@ -243,9 +243,12 @@ resource "aws_instance" "a_web_servers" {
   associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.a_allow_web_servers_s3_profile.name
   depends_on                  = [aws_iam_role_policy.a_allow_web_servers_s3_policy]
-  user_data = templatefile("./Templates/startupscript2.tpl", {
+  user_data = <<-EOF
+    ${file("./Templates/installpython.tpl")}
+    ${templatefile("./Templates/startupscript2.tpl", {
     s3_bucket_name = module.aws_s3.s3_bucket_id
-  })
+  })}
+  EOF
 
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-a-web-servers${count.index + 1}" })
 }
