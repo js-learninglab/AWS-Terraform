@@ -81,6 +81,32 @@ jobs:
         echo "Attempting to connect to:"
         terraform output -json a_web_servers_public_ip_url | jq -r '.[]'
 
+    - name: Debug SSH Connection
+      env:
+          TF_WORKSPACE: ${{ github.event.inputs.environment }}
+      run: |
+       echo "=== Debugging SSH Connection ==="
+    
+        # Get first EC2 IP
+        EC2_IP=$(terraform output -json a_web_servers_public_ip_url | jq -r '.[0]' | sed 's|http://||' | sed 's|:80||')
+        echo "Testing SSH to: $EC2_IP"
+        
+        # Check SSH key file
+        echo ""
+        echo "=== SSH Key File Info ==="
+        ls -la ~/.ssh/id_rsa
+        
+        # Show key fingerprint
+        echo ""
+        echo "=== Private Key Fingerprint ==="
+        ssh-keygen -lf ~/.ssh/id_rsa
+        
+        # Test SSH with verbose output
+        echo ""
+        echo "=== Testing SSH Connection (verbose) ==="
+        ssh -vvv -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
+          ec2-user@$EC2_IP echo "SSH SUCCESS!" 2>&1 | tail -50
+
     - name: Configure Servers
       env:
         AWS_REGION: us-west-2
