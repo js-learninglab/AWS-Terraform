@@ -43,7 +43,8 @@ data "aws_ami" "linux" {
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+    #values = ["amzn2-ami-hvm-*-x86_64-gp2"] Changing this because of its lower version of python
+    values = ["al2023-ami-*-x86_64"]
   }
 
   owners = ["137112412989"]

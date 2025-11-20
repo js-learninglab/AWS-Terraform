@@ -4,11 +4,11 @@
 ---
   ### this task is "sudo amazon-linux-extras install -y nginx1"
     - name: Install Nginx
-      command: amazon-linux-extras install -y nginx1
-      args:
-        creates: /usr/sbin/nginx
+      dnf:
+        name: nginx
+        state: present
 
-  ### this task is "sudo service nginx start"
+  ### this task is "sudo systemctl start nginx"
     - name: Start Nginx service
       service:
         name: nginx
