@@ -62,7 +62,8 @@ jobs:
 
     - name: Install Ansible and required dependencies
       run: |
-        pip install ansible boto3 botocore
+        # install older version ansible because of python compatibility
+        pip install ansible-core==2.15.12 boto3 botocore
         ansible-galaxy collection install amazon.aws
         ansible --version
         echo "Ansible and required AWS dependencies installed"
