@@ -45,7 +45,7 @@
 
 # verify agent is running
   - name: Check CloudWatch Agent status
-    command: /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a query -m ec2 -c default
+    command: /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a status
     register: agent_status
     changed_when: false
 
