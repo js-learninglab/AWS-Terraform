@@ -7,3 +7,8 @@
   tasks:
     - name: Import Nginx playbook
       import_tasks: nginx.yml
+
+    - name: Import CloudWatch Agent playbook
+      import_tasks: cloudwatchagent.yml
+
+
