@@ -21,7 +21,7 @@
 # copy configuration file
   - name: Copy CloudWatch Agent configuration file
     template:
-      src: ../Templates/cloudwatchagent-config.json.tpl
+      src: ../../Templates/cloudwatchagent-config.json.tpl
       dest: /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
       owner: root
       group: root
