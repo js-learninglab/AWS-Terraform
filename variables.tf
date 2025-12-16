@@ -163,7 +163,7 @@ variable "common_tags" {
   default     = {}
 }
 
-variable "EC2_SSH_PUBLIC_KEY" {
+variable "ec2_ssh_public_key" {
   description = "Public key for SSH access to EC2 instances."
   type        = string
   sensitive   = true

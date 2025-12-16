@@ -172,6 +172,73 @@ resource "aws_cloudwatch_dashboard" "js_learninglab_dashboard" {
 
 }
 
+### create cloudwatch log metric filter
+resource "aws_cloudwatch_log_metric_filter" "count_404_errors" {
+  name           = "count-404-errors"
+  log_group_name = aws_cloudwatch_log_group.aws_cloudwatch_access_log_group.name
+  pattern        = "[host, ident, authuser, date, request, status=404, bytes, referrer, useragent]"
+
+  metric_transformation {
+    name      = "404ErrorCount"
+    namespace = "MyApp/Metrics"
+    value     = "1"
+  }
+}
+
+resource "aws_cloudwatch_log_metric_filter" "count_500_errors" {
+  name           = "count-500-errors"
+  log_group_name = aws_cloudwatch_log_group.aws_cloudwatch_error_log_group.name
+  pattern        = "[host, ident, authuser, date, request, status=500, bytes, referrer, useragent]"
+
+  metric_transformation {
+    name      = "500ErrorCount"
+    namespace = "MyApp/Metrics"
+    value     = "1"
+  }
+}
+
+### create cloudwatch alarm for 404 and 500 errors
+resource "aws_cloudwatch_metric_alarm" "alarm_404_errors" {
+  alarm_name          = "${local.prefix}-404-Errors-Alarm-${var.environment}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "1"
+  metric_name         = aws_cloudwatch_log_metric_filter.count_404_errors.metric_transformation[0].name
+  namespace           = aws_cloudwatch_log_metric_filter.count_404_errors.metric_transformation[0].namespace
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "5"
+  alarm_description         = "Alarm for high number of 404 errors"
+  alarm_actions             = [aws_sns_topic.cpu_utilization_alerts.arn]
+  insufficient_data_actions = []
+  tags = merge(
+    local.common_tags,
+    {
+      Environment = var.environment
+      Name        = "${local.prefix}-404-Errors-Alarm-${var.environment}"
+    }
+  )
+}
+
+resource "aws_cloudwatch_metric_alarm" "alarm_500_errors" {
+  alarm_name          = "${local.prefix}-500-Errors-Alarm-${var.environment}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "1"
+  metric_name         = aws_cloudwatch_log_metric_filter.count_500_errors.metric_transformation[0].name
+  namespace           = aws_cloudwatch_log_metric_filter.count_500_errors.metric_transformation[0].namespace
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "5"
+  alarm_description         = "Alarm for high number of 500 errors"
+  alarm_actions             = [aws_sns_topic.cpu_utilization_alerts.arn]
+  insufficient_data_actions = []
+  tags = merge(
+    local.common_tags,
+    {
+      Environment = var.environment
+      Name        = "${local.prefix}-500-Errors-Alarm-${var.environment}"
+    }
+  )
+}
 
 ### create log group
 resource "aws_cloudwatch_log_group" "aws_cloudwatch_access_log_group" {
