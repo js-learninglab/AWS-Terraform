@@ -42,7 +42,7 @@ data "aws_ami" "linux" {
   most_recent = true
 
   filter {
-    name   = "name"
+    name = "name"
     #values = ["amzn2-ami-hvm-*-x86_64-gp2"] Changing this because of its lower version of python
     values = ["al2023-ami-*-x86_64"]
   }
@@ -247,11 +247,11 @@ resource "aws_instance" "a_web_servers" {
   user_data = <<-EOF
     ${file("./Templates/installpython.tpl")}
     ${templatefile("./Templates/startupscript2.tpl", {
-    s3_bucket_name = module.aws_s3.s3_bucket_id
-  })}
+  s3_bucket_name = module.aws_s3.s3_bucket_id
+})}
   EOF
 
-  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-a-web-servers${count.index + 1}" })
+tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-a-web-servers${count.index + 1}" })
 }
 
 #create virtual machine or aws_instance >> REMOVED BECAUSE OF COUNT IN aws_instance a_web_servers
