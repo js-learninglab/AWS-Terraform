@@ -54,3 +54,4 @@ resource "aws_lb_target_group_attachment" "a_web_lb_tg_attach" {
 }
 
 # create aws lb target group attachment for web server2 >> REMOVED BECAUSE OF COUNT IN aws_lb_target_group_attachment a_web_lb_tg_attach 
+
