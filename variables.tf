@@ -67,6 +67,24 @@ variable "aws_web_subnet_count" {
   default     = 2
 }
 
+variable "asg_aws_server_count_desired" {
+  description = "number of aws autoscaling group instances desired"
+  type        = number
+  default     = 2
+}
+
+variable "asg_aws_server_count_min" {
+  description = "number of aws autoscaling group instances min"
+  type        = number
+  default     = 1
+}
+
+variable "asg_aws_server_count_max" {
+  description = "number of aws autoscaling group instances max"
+  type        = number
+  default     = 4
+}
+
 variable "aws_vpc_cidr" {
   description = "The cidr for the AWS VPC."
   type        = string
