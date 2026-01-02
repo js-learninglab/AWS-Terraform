@@ -166,6 +166,42 @@ resource "aws_cloudwatch_dashboard" "js_learninglab_dashboard" {
           title   = "EC2 Instance CPU Utilization"
           period  = 300
         }
+      },
+      {
+        type   = "metric"
+        x      = 0
+        y      = 6
+        width  = 24
+        height = 6
+        properties = {
+          metrics = [
+            for index, instance in aws_instance.a_web_servers :
+            ["MyApp/Metrics", "404ErrorCount", { "stat" : "Sum", "period" : 300 }]
+          ]
+          view    = "timeSeries"
+          stacked = false
+          region  = var.aws_region
+          title   = "Count 404 errors"
+          period  = 300
+        }
+      },
+      {
+        type   = "metric"
+        x      = 0
+        y      = 12
+        width  = 24
+        height = 6
+        properties = {
+          metrics = [
+            for index, instance in aws_instance.a_web_servers :
+            ["MyApp/Metrics", "500ErrorCount", { "stat" : "Sum", "period" : 300 }]
+          ]
+          view    = "timeSeries"
+          stacked = false
+          region  = var.aws_region
+          title   = "Count 500 errors"
+          period  = 300
+        }
       }
     ]
   })
@@ -199,14 +235,14 @@ resource "aws_cloudwatch_log_metric_filter" "count_500_errors" {
 
 ### create cloudwatch alarm for 404 and 500 errors
 resource "aws_cloudwatch_metric_alarm" "alarm_404_errors" {
-  alarm_name          = "${local.prefix}-404-Errors-Alarm-${var.environment}"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.count_404_errors.metric_transformation[0].name
-  namespace           = aws_cloudwatch_log_metric_filter.count_404_errors.metric_transformation[0].namespace
-  period              = "300"
-  statistic           = "Sum"
-  threshold           = "5"
+  alarm_name                = "${local.prefix}-404-Errors-Alarm-${var.environment}"
+  comparison_operator       = "GreaterThanThreshold"
+  evaluation_periods        = "1"
+  metric_name               = aws_cloudwatch_log_metric_filter.count_404_errors.metric_transformation[0].name
+  namespace                 = aws_cloudwatch_log_metric_filter.count_404_errors.metric_transformation[0].namespace
+  period                    = "300"
+  statistic                 = "Sum"
+  threshold                 = "5"
   alarm_description         = "Alarm for high number of 404 errors"
   alarm_actions             = [aws_sns_topic.cpu_utilization_alerts.arn]
   insufficient_data_actions = []
@@ -220,14 +256,14 @@ resource "aws_cloudwatch_metric_alarm" "alarm_404_errors" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "alarm_500_errors" {
-  alarm_name          = "${local.prefix}-500-Errors-Alarm-${var.environment}"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.count_500_errors.metric_transformation[0].name
-  namespace           = aws_cloudwatch_log_metric_filter.count_500_errors.metric_transformation[0].namespace
-  period              = "300"
-  statistic           = "Sum"
-  threshold           = "5"
+  alarm_name                = "${local.prefix}-500-Errors-Alarm-${var.environment}"
+  comparison_operator       = "GreaterThanThreshold"
+  evaluation_periods        = "1"
+  metric_name               = aws_cloudwatch_log_metric_filter.count_500_errors.metric_transformation[0].name
+  namespace                 = aws_cloudwatch_log_metric_filter.count_500_errors.metric_transformation[0].namespace
+  period                    = "300"
+  statistic                 = "Sum"
+  threshold                 = "5"
   alarm_description         = "Alarm for high number of 500 errors"
   alarm_actions             = [aws_sns_topic.cpu_utilization_alerts.arn]
   insufficient_data_actions = []

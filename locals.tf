@@ -8,6 +8,8 @@ locals {
 
   s3_bucket_name = "${lower(local.naming_prefix)}-s3-${random_integer.random_number.result}"
 
+  autoscaling_prefix = "${local.naming_prefix}-asg"
+
   website_content = {
     website = "website/index.html"
     image   = "website/JS_learningLab.png"
