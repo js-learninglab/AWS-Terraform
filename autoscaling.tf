@@ -1,11 +1,17 @@
 ### create launch template blueprint for my instances
 # migrate resource from aws_instance to aws_launch_template
 resource "aws_launch_template" "asg_aws_launch_template" {
-  name_prefix            = "${local.naming_prefix}-asg-"
-  image_id               = data.aws_ami.linux.id # referring back to the same data source for AMI
-  instance_type          = var.aws_instance_type
-  key_name               = aws_key_pair.a_ec2_ssh_key.key_name
-  vpc_security_group_ids = [aws_security_group.a_web_sg.id]
+  name_prefix   = "${local.naming_prefix}-asg-"
+  image_id      = data.aws_ami.linux.id # referring back to the same data source for AMI
+  instance_type = var.aws_instance_type
+  key_name      = aws_key_pair.a_ec2_ssh_key.key_name
+  #vpc_security_group_ids = [aws_security_group.a_web_sg.id] # commenting this because using network_interfaces instead
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups             = [aws_security_group.a_web_sg.id]
+    delete_on_termination       = true
+  }
+
   iam_instance_profile {
     name = aws_iam_instance_profile.a_allow_web_servers_s3_profile.name
   }
