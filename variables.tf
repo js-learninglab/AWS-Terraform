@@ -136,6 +136,24 @@ variable "aws_tcp_443" {
   default     = 443
 }
 
+variable "aws_tcp_3000" {
+  description = "The TCP port 3000 for Grafana UI."
+  type        = number
+  default     = 3000
+}
+
+variable "aws_tcp_9090" {
+  description = "The TCP port 9090 for Prometheus UI."
+  type        = number
+  default     = 9090
+}
+
+variable "aws_tcp_9100" {
+  description = "The TCP port 9100 for Prometheus to scrape metrics."
+  type        = number
+  default     = 9100
+}
+
 variable "aws_tcp_all" {
   description = "All TCP ports."
   type        = string
