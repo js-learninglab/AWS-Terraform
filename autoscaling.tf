@@ -43,13 +43,13 @@ resource "aws_autoscaling_group" "aws_autoscaling_group" {
   }
 
   tag {
-    key                 = "owner"
+    key                 = "Owner"
     value               = local.common_tags.Owner
     propagate_at_launch = true
   }
 
   tag {
-    key                 = "project"
+    key                 = "Project"
     value               = local.common_tags.Project
     propagate_at_launch = true
   }
@@ -62,6 +62,53 @@ resource "aws_autoscaling_group" "aws_autoscaling_group" {
 }
 
 ### create policies for scaling in and out
+resource "aws_autoscaling_policy" "asg_scale_out_policy" {
+  name                   = "asg-scale-out-policy"
+  autoscaling_group_name = aws_autoscaling_group.aws_autoscaling_group.name
+  scaling_adjustment     = 1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 300
+}
 
+resource "aws_autoscaling_policy" "asg_scale_in_policy" {
+  name                   = "asg-scale-in-policy"
+  autoscaling_group_name = aws_autoscaling_group.aws_autoscaling_group.name
+  scaling_adjustment     = -1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 300
+}
 
 ### create cloudwatch alarms to trigger scaling policies
+resource "aws_cloudwatch_metric_alarm" "asg_cpu_high_alarm" {
+  alarm_name          = "asg-cpu-high-alarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 2
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = 120
+  statistic           = "Average"
+  threshold           = 70
+
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.aws_autoscaling_group.name
+  }
+
+  alarm_actions = [aws_autoscaling_policy.asg_scale_out_policy.arn]
+}
+
+resource "aws_cloudwatch_metric_alarm" "asg_cpu_low_alarm" {
+  alarm_name          = "asg-cpu-low-alarm"
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = 2
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = 120
+  statistic           = "Average"
+  threshold           = 30
+
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.aws_autoscaling_group.name
+  }
+
+  alarm_actions = [aws_autoscaling_policy.asg_scale_in_policy.arn]
+}
