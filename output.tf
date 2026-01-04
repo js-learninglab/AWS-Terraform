@@ -34,6 +34,10 @@ output "a_s3_bucket_name" {
   value       = module.aws_s3.s3_bucket_id
 }
 
+output "asg_web_lb_dns_name" {
+  description = "The DNS name of the ASG load balancer"
+  value       = aws_lb.asg_web_lb.dns_name
+}
 /*
   ██████   ██████ ██████  
  ██       ██      ██   ██ 

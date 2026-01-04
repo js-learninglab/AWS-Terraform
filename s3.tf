@@ -20,7 +20,10 @@ resource "aws_s3_bucket_policy" "a_s3_bucket_policy" {
         Principal = {
           "AWS" = "${data.aws_elb_service_account.root.arn}"
         }
-        Resource = "arn:aws:s3:::${local.s3_bucket_name}/a-web-lb-logs/*"
+        Resource = [
+          "arn:aws:s3:::${local.s3_bucket_name}/a-web-lb-logs/*",
+          "arn:aws:s3:::${local.s3_bucket_name}/asg-web-lb-logs/*"
+        ]
       },
       {
         Action = "s3:PutObject"
@@ -28,7 +31,10 @@ resource "aws_s3_bucket_policy" "a_s3_bucket_policy" {
         Principal = {
           "Service" = "delivery.logs.amazonaws.com"
         }
-        Resource = "arn:aws:s3:::${local.s3_bucket_name}/a-web-lb-logs/*"
+        Resource = [
+          "arn:aws:s3:::${local.s3_bucket_name}/a-web-lb-logs/*",
+          "arn:aws:s3:::${local.s3_bucket_name}/asg-web-lb-logs/*"
+        ]
         Condition = {
           StringEquals = {
             "s3:x-amz-acl" = "bucket-owner-full-control"

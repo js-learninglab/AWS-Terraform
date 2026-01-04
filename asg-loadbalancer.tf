@@ -9,7 +9,7 @@ resource "aws_lb" "asg_web_lb" {
   name               = "asg-web-lb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.asg_web_lb_sg.id]
+  security_groups    = [aws_security_group.a_web_lb_sg.id] # reusing the same security group as web lb
   subnets            = module.aws_vpc.public_subnets
   depends_on         = [aws_s3_bucket_policy.a_s3_bucket_policy]
 
