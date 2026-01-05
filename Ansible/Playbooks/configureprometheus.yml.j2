@@ -1,0 +1,23 @@
+### this yml is for configuring prometheus on the instance so that it can scrape metrics from node exporter
+### this yml has .j2 format because it supports variable substitution and j2 is JinJa2
+
+# creating variable for scrape and setting it 15 seconds
+global:
+  scrape_interval: {{ scrape_interval | default('15s') }}
+
+# configure scrape config look up by filters
+scrape_configs:
+  - job_name: 'node_exporter'
+    ec2_sd_configs:
+      - region: {{ aws_region }}
+        port: 9100
+        filters:
+          - name: tag:Project
+            values: ['AWS-TF']
+          - name: tag:Owner
+            values: ['Juli']
+          - name: instance-state-name
+            values: ['running']
+
+
+

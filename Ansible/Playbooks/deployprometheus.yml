@@ -1,0 +1,26 @@
+### now that we have the configuration file, next is this deployment playbook
+
+- name: Configure Prometheus Server
+  hosts: name_JSLearningLab_*_a_prom_graf_server
+  become: true
+
+  vars:
+    scrape_interval: '15s'
+    aws_region: 'us-west-2'
+
+  tasks:
+    - name: Deploy Prometheus configuration file
+      template:
+        src: configureprometheus.yml.j2
+        dest: /etc/prometheus/prometheus.yml
+        owner: prometheus
+        group: prometheus
+        mode: '0644'
+
+  notify: restart prometheus
+
+  handlers:
+    - name: restart prometheus
+      systemd:
+        name: prometheus
+        state: restarted

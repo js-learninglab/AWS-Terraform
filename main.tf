@@ -318,17 +318,17 @@ tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environme
 # create virtual machine for prometheus and grafana monitoring
 resource "aws_instance" "a_prom_graf_server" {
   ami                         = data.aws_ami.linux.id
-  instance_type               = "t2.small"                         #this instance might require more resources hence not t2.micro
+  instance_type               = "t2.small"                       #this instance might require more resources hence not t2.micro
   subnet_id                   = module.aws_vpc.public_subnets[0] #placing in first subnet since it is just one instance
   key_name                    = aws_key_pair.a_ec2_ssh_key.key_name
   vpc_security_group_ids      = [aws_security_group.a_prom_graf_sg.id]
   associate_public_ip_address = true
 
-  /*user_data = <<-EOF
-    ${file("./Templates/installpython.tpl")}
+  user_data = <<-EOF
     ${file("./Templates/installprometheus.tpl")}
+    ${file("./Templates/installgrafana.tpl")}
   EOF
-  */
+
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-a-prom-graf-server" })
 }
 
