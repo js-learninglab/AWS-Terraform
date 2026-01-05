@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 # install_prometheus.sh
 
 # fetch prometheus from github
