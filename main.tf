@@ -326,7 +326,7 @@ resource "aws_instance" "a_prom_graf_server" {
 
   /*user_data = <<-EOF
     ${file("./Templates/installpython.tpl")}
-    ${file("./Templates/installpromgrafana.tpl")}
+    ${file("./Templates/installprometheus.tpl")}
   EOF
   */
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-a-prom-graf-server" })
