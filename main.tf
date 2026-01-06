@@ -325,6 +325,7 @@ resource "aws_instance" "a_prom_graf_server" {
   associate_public_ip_address = true
 
   user_data = <<-EOF
+    ${file("./Templates/installpython.tpl")}
     ${file("./Templates/installprometheus.tpl")}
     ${file("./Templates/installgrafana.tpl")}
   EOF
