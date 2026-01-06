@@ -1,0 +1,89 @@
+### this yml is for configuring node exporter on the instance so that prometheus can scrape metrics from it
+
+
+# download node exporter package
+  - name: Download Node Exporter package
+    get_url:
+      url: https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-amd64.tar.gz
+      dest: /tmp/node_exporter.tar.gz
+
+# extract node exporter package
+  - name: Extract Node Exporter package
+    unarchive:
+      src: /tmp/node_exporter.tar.gz
+      dest: /opt/
+      remote_src: yes
+      creates: /opt/node_exporter-1.7.0.linux-amd64
+
+# Add this task before copying the binary
+  - name: Create node_exporter user
+    user:
+      name: node_exporter
+      shell: /bin/false
+      create_home: no
+      system: yes
+
+# install node exporter binary
+  - name: Install Node Exporter binary
+    copy:
+      src: /opt/node_exporter-1.7.0.linux-amd64/node_exporter
+      dest: /usr/local/bin/node_exporter
+      mode: '0755'
+
+# set ownership of node exporter binary
+  - name: Set ownership of node_exporter binary
+    file:
+      path: /usr/local/bin/node_exporter
+      owner: node_exporter
+      group: node_exporter
+      mode: '0755'
+
+# create node exporter systemd service file
+  - name: Create Node Exporter systemd service file
+    copy:
+      dest: /etc/systemd/system/node_exporter.service
+      content: |
+        [Unit]
+        Description=Node Exporter
+        After=network.target
+
+        [Service]
+        User=node_exporter
+        ExecStart=/usr/local/bin/node_exporter 
+        Restart=always
+        RestartSec=5
+        LimitNOFILE=65536
+        [Install]
+        WantedBy=multi-user.target
+      mode: '0644'
+
+# reload systemd to recognize new service
+  - name: Reload systemd
+    command: systemctl daemon-reload
+    args:
+      warn: false
+
+# enable and start node exporter service
+  - name: Enable and start Node Exporter service
+    systemd:
+      name: node_exporter
+      enabled: yes
+      state: started
+
+# verify node exporter is running
+  - name: Check Node Exporter status
+    command: systemctl is-active node_exporter
+    register: node_exporter_status
+    changed_when: false
+  - name: Display Node Exporter status
+    debug:
+      msg: "Node Exporter status: {{ node_exporter_status.stdout }}"
+
+# clean up
+  - name: Clean up temp files
+    file:
+      path: "{{ item }}"
+      state: absent
+    loop:
+      - /tmp/node_exporter.tar.gz
+      - /opt/node_exporter-1.7.0.linux-amd64

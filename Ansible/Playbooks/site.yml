@@ -11,4 +11,5 @@
     - name: Import CloudWatch Agent playbook
       import_tasks: cloudwatchagent.yml
 
-
+    - name: Import Node Exporter playbook
+      import_tasks: nodeexporter.yml
