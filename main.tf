@@ -324,6 +324,12 @@ resource "aws_instance" "a_prom_graf_server" {
   vpc_security_group_ids      = [aws_security_group.a_prom_graf_sg.id]
   associate_public_ip_address = true
 
+  # need to add more disk because logs say "no space left on device"
+  root_block_device {
+    volume_size = 20  # 20GB instead of default 8GB
+    volume_type = "gp3"
+  }
+
   user_data = <<-EOF
     ${file("./Templates/installpython.tpl")}
     ${file("./Templates/installprometheus.tpl")}
