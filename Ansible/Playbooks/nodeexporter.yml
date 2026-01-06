@@ -60,9 +60,8 @@
 
 # reload systemd to recognize new service
   - name: Reload systemd
-    command: systemctl daemon-reload
-    args:
-      warn: false
+    systemd:
+      daemon_reload: yes
 
 # enable and start node exporter service
   - name: Enable and start Node Exporter service
