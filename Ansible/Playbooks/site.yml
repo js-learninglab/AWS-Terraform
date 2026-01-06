@@ -1,5 +1,7 @@
 ### MAIN PLAYBOOK ###
 
+
+### Play 1 is for Web servers:
 - name: Configure Web Servers
   hosts: all
   become: true
@@ -13,3 +15,7 @@
 
     - name: Import Node Exporter playbook
       import_tasks: nodeexporter.yml
+
+
+### Play 2 is for Prometheus/Grafana server:
+- import_playbook: deployprometheus.yml
