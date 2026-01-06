@@ -2,7 +2,8 @@
 # install_prometheus.sh
 
 # fetch prometheus from github
-LATEST_VERSION=$(curl -s https://api.github.com/repos/prometheus/prometheus/releases/latest | grep tag_name | cut -d '"' -f 4)
+#LATEST_VERSION=$(curl -s https://api.github.com/repos/prometheus/prometheus/releases/latest | grep tag_name | cut -d '"' -f 4) # not working
+LATEST_VERSION="v3.8.1"
 TAR_FILE="prometheus-${LATEST_VERSION}.linux-amd64.tar.gz"
 
 cd /tmp/
