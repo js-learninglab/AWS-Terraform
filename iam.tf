@@ -78,3 +78,53 @@ resource "aws_iam_role_policy" "a_allow_cloudwatch_agent_policy" {
     ]
   })
 }
+
+
+
+### iam role for prom_graf monitoring server to scrape data from web servers ###
+resource "aws_iam_role" "a_allow_prom_graf_scrape" {
+  name = "a_allow_prom_graf_scrape"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+### create iam instance profile for prom_graf monitoring server
+resource "aws_iam_instance_profile" "a_allow_prom_graf_scrape_profile" {
+  name = "a_allow_prom_graf_scrape_profile"
+  role = aws_iam_role.a_allow_prom_graf_scrape.name
+
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-a_allow_prom_graf_scrape_profile" })
+}
+
+### create iam role policy for prom_graf monitoring server
+resource "aws_iam_role_policy" "a_allow_prom_graf_scrape_policy" {
+  name = "a_allow_prom_graf_scrape_policy"
+  role = aws_iam_role.a_allow_prom_graf_scrape.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "ec2:DescribeInstances",
+          "ec2:DescribeTags",
+          "cloudwatch:GetMetricData",
+          "cloudwatch:ListMetrics"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      }
+    ]
+  })
+}

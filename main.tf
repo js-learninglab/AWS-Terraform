@@ -323,10 +323,11 @@ resource "aws_instance" "a_prom_graf_server" {
   key_name                    = aws_key_pair.a_ec2_ssh_key.key_name
   vpc_security_group_ids      = [aws_security_group.a_prom_graf_sg.id]
   associate_public_ip_address = true
+  iam_instance_profile        = aws_iam_instance_profile.a_allow_prom_graf_scrape_profile.name
 
   # need to add more disk because logs say "no space left on device"
   root_block_device {
-    volume_size = 20  # 20GB instead of default 8GB
+    volume_size = 20 # 20GB instead of default 8GB
     volume_type = "gp3"
   }
 
