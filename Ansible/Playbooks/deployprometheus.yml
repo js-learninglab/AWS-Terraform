@@ -9,6 +9,10 @@
     aws_region: 'us-west-2'
 
   tasks:
+    - name: DEBUG - Any hosts matched?
+      debug:
+        msg: "Matched host: {{ inventory_hostname }}"
+        
     - name: Deploy Prometheus configuration file
       template:
         src: configureprometheus.yml.j2
