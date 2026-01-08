@@ -108,6 +108,19 @@ jobs:
         ssh -vvv -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
           ec2-user@$EC2_IP echo "SSH SUCCESS!" 2>&1 | tail -50
 
+    - name: Debug - Show All Inventory Groups
+      env:
+        AWS_REGION: us-west-2
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      run: |
+        cd Ansible
+        echo "=== All inventory groups ==="
+        ansible-inventory -i Inventory/aws_ec2.yml --graph
+        echo ""
+        echo "=== Hosts with 'prom' or 'graf' in name ==="
+        ansible-inventory -i Inventory/aws_ec2.yml --list | grep -i "prom\|graf" || echo "No matches found"
+
     - name: Configure Servers
       env:
         AWS_REGION: us-west-2
