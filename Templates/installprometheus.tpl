@@ -3,13 +3,13 @@
 
 # fetch prometheus from github
 #LATEST_VERSION=$(curl -s https://api.github.com/repos/prometheus/prometheus/releases/latest | grep tag_name | cut -d '"' -f 4) # not working
-LATEST_VERSION="v3.8.1"
-TAR_FILE="prometheus-${LATEST_VERSION}.linux-amd64.tar.gz"
+VERSION="3.8.1"
+TAR_FILE="prometheus-${VERSION}.linux-amd64.tar.gz"
 
 cd /tmp/
-curl -LO https://github.com/prometheus/prometheus/releases/download/${LATEST_VERSION}/${TAR_FILE}
+curl -LO https://github.com/prometheus/prometheus/releases/download/v${VERSION}/${TAR_FILE}
 tar xvf ${TAR_FILE}
-cd prometheus-${LATEST_VERSION}.linux-amd64/
+cd prometheus-${VERSION}.linux-amd64/
 
 # configure binaries directories
 sudo mv prometheus /usr/local/bin/
