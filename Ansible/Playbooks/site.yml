@@ -3,7 +3,7 @@
 
 ### Play 1 is for Web servers:
 - name: Configure Web Servers
-  hosts: all
+  hosts: all:!*_a_prom_graf_server
   become: true
   
   tasks:
