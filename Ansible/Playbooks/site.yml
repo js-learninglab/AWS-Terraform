@@ -19,3 +19,6 @@
 
 ### Play 2 is for Prometheus/Grafana server:
 - import_playbook: deployprometheus.yml
+
+### Play 3 is for RDS client setup on web servers:
+- import_playbook: rdsclientsetup.yml

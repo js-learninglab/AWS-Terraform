@@ -143,6 +143,7 @@ resource "aws_instance" "a_web_servers" {
   depends_on                  = [aws_iam_role_policy.a_allow_web_servers_s3_policy]
   user_data = <<-EOF
     ${file("./Templates/installpython.tpl")}
+    ${file("./Templates/installpostgres.tpl")}
     ${templatefile("./Templates/startupscript2.tpl", {
   s3_bucket_name = module.aws_s3.s3_bucket_id
 })}
@@ -171,6 +172,7 @@ resource "aws_instance" "a_prom_graf_server" {
     ${file("./Templates/installpython.tpl")}
     ${file("./Templates/installprometheus.tpl")}
     ${file("./Templates/installgrafana.tpl")}
+
   EOF
 
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-a-prom-graf-server" })
