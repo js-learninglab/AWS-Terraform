@@ -128,3 +128,23 @@ resource "aws_iam_role_policy" "a_allow_prom_graf_scrape_policy" {
     ]
   })
 }
+
+### create iam role policy web servers to access secrets manager ###
+resource "aws_iam_role_policy" "a_allow_web_servers_secrets_manager_policy" {
+  name = "a_allow_web_servers_secrets_manager_policy"
+  role = aws_iam_role.a_allow_web_servers_s3.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ]
+        Effect   = "Allow"
+        Resource = "aws_secretsmanager_secret.a_rds_password_secret.arn"
+      }
+    ]
+  })
+}

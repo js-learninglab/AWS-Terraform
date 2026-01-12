@@ -204,6 +204,49 @@ variable "ec2_ssh_public_key" {
   type        = string
   sensitive   = true
 }
+
+variable "aws_rds_db_name" {
+  description = "The name of the RDS database."
+  type        = string
+  default     = "jslearninglabdb"
+}
+
+variable "aws_rds_master_username" {
+  description = "The master username for the RDS database."
+  type        = string
+  default     = "JSDBadmin"
+}
+
+variable "aws_rds_allocated_storage" {
+  description = "The allocated storage for the RDS database in GB."
+  type        = number
+  default     = 20
+}
+
+variable "aws_rds_engine" {
+  description = "The database engine for the RDS instance."
+  type        = string
+  default     = "postgres"
+}
+
+variable "aws_rds_engine_version" {
+  description = "The database engine version for the RDS instance."
+  type        = string
+  default     = "15"
+}
+
+variable "aws_rds_instance_class" {
+  description = "The instance class for the RDS instance."
+  type        = string
+  default     = "db.t3.micro"
+}
+
+variable "aws_rds_backup_retention_period" {
+  description = "The backup retention period for the RDS instance in days."
+  type        = number
+  default     = 7
+}
+
 /*
   ██████   ██████ ██████  
  ██       ██      ██   ██ 
