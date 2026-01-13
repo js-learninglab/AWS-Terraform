@@ -1,7 +1,7 @@
 ### configure RDS client on the instance to connect to RDS database
 
 - name: Configure RDS Client
-  hosts: "*_a_web_servers"
+  hosts: "*_a_web_servers*"
   become: true
 
   tasks:
