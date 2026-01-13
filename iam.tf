@@ -143,7 +143,7 @@ resource "aws_iam_role_policy" "a_allow_web_servers_secrets_manager_policy" {
           "secretsmanager:DescribeSecret"
         ]
         Effect   = "Allow"
-        Resource = "aws_secretsmanager_secret.a_rds_password_secret.arn"
+        Resource = aws_secretsmanager_secret.a_rds_password_secret.arn
       }
     ]
   })
