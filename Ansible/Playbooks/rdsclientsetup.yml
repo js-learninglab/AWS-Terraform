@@ -33,11 +33,7 @@
     #    mode: '0600'
 
     - name: Test connection to RDS PostgreSQL database
-      shell: >-
-        psql -h {{ rds_endpoint }} 
-             -U {{ rds_username }} 
-             -d {{ rds_db_name }} 
-             -c "SELECT version();"
+      shell: psql -h {{ rds_endpoint }} -U {{ rds_username }} -d {{ rds_db_name }} -c "SELECT version();"
       environment:
         PGPASSWORD: "{{ rds_password_result.stdout }}"
       become_user: ec2-user
