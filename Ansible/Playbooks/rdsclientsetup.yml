@@ -24,20 +24,22 @@
       register: rds_password_result
       changed_when: false
 
-    - name: Create .pgpass file for PostgreSQL authentication
-      copy:
-        dest: /home/ec2-user/.pgpass
-        content: "{{ rds_endpoint }}:5432:{{ rds_db_name }}:{{ rds_username }}:{{ rds_password_result.stdout }}"
-        owner: ec2-user
-        group: ec2-user
-        mode: '0600'
+    #- name: Create .pgpass file for PostgreSQL authentication
+    #  copy:
+    #    dest: /home/ec2-user/.pgpass
+    #    content: "{{ rds_endpoint }}:5432:{{ rds_db_name }}:{{ rds_username }}:{{ rds_password_result.stdout }}"
+    #    owner: ec2-user
+    #    group: ec2-user
+    #    mode: '0600'
 
     - name: Test connection to RDS PostgreSQL database
-      shell: |
+      shell: >-
         psql -h {{ rds_endpoint }} 
              -U {{ rds_username }} 
              -d {{ rds_db_name }} 
              -c "SELECT version();"
+      environment:
+        PGPASSWORD: "{{ rds_password_result.stdout }}"
       become_user: ec2-user
       register: db_test
       changed_when: false
