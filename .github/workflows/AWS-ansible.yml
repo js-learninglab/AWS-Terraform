@@ -53,6 +53,21 @@ jobs:
         echo "Fetched S3 bucket name: $S3_BUCKET"
        # echo "S3 Bucket: $S3_BUCKET"
 
+    - name: Get RDS Configuration from Terraform Cloud
+      env:
+        TF_WORKSPACE: ${{ github.event.inputs.environment }}
+      run: |
+        echo "Fetching outputs from Terraform Cloud..."
+        RDS_ENDPOINT=$(terraform output -raw a_rds_instance_endpoint | cut -d: -f1)
+        RDS_DB_NAME=$(terraform output -raw a_rds_instance_db_name)
+        RDS_USERNAME=$(terraform output -raw a_rds_instance_master_username)
+        RDS_SECRET=$(terraform output -raw a_rds_instance_secret_name)
+        
+        echo "RDS_ENDPOINT=$RDS_ENDPOINT" >> $GITHUB_ENV
+        echo "RDS_DB_NAME=$RDS_DB_NAME" >> $GITHUB_ENV
+        echo "RDS_USERNAME=$RDS_USERNAME" >> $GITHUB_ENV
+        echo "RDS_SECRET=$RDS_SECRET" >> $GITHUB_ENV
+
     - name: Setup SSH Key
       run: |
         mkdir -p ~/.ssh
@@ -133,4 +148,10 @@ jobs:
         echo "S3 Bucket: ${{ env.S3_BUCKET }}"
 
         ansible-playbook -i Inventory/aws_ec2.yml Playbooks/site.yml \
-          -e "s3_bucket_name=${{ env.S3_BUCKET }}"
+          -e "s3_bucket_name=${{ env.S3_BUCKET }}"\
+          -e "environment=dev" \
+          -e "aws_region=$AWS_REGION" \
+          -e "rds_endpoint=$RDS_ENDPOINT" \
+          -e "rds_db_name=$RDS_DB_NAME" \
+          -e "rds_username=$RDS_USERNAME" \
+          -e "rds_secret_name=$RDS_SECRET"
