@@ -17,6 +17,7 @@ resource "aws_launch_template" "asg_aws_launch_template" {
   }
   user_data = base64encode(<<-EOF
     ${file("./Templates/installpython.tpl")}
+    ${file("./Templates/installpostgres.tpl")}
     ${templatefile("./Templates/startupscript2.tpl", {
     s3_bucket_name = module.aws_s3.s3_bucket_id
 })}

@@ -20,3 +20,9 @@ resource "random_integer" "random_number" {
   min = 10000
   max = 99999
 }
+
+resource "random_password" "rds_password" {
+  length           = 16
+  special          = true
+  override_special = "_%@!$#"
+}

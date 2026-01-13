@@ -54,6 +54,31 @@ output "a_prometheus_grafana_public_dns" {
   value       = aws_instance.a_prom_graf_server.public_dns
 }
 
+output "a_rds_instance_endpoint" {
+  description = "The endpoint of the RDS instance"
+  value       = aws_db_instance.a_rds_instance.endpoint
+}
+
+output "a_rds_instance_db_name" {
+  description = "The database name"
+  value       = aws_db_instance.a_rds_instance.db_name
+}
+
+output "a_rds_instance_port" {
+  description = "The port of the RDS instance"
+  value       = aws_db_instance.a_rds_instance.port
+}
+
+output "a_rds_instance_master_username" {
+  description = "The master username of the RDS instance"
+  value       = aws_db_instance.a_rds_instance.username
+}
+
+output "a_rds_instance_secret_name" {
+  description = "The name of the Secrets Manager secret for the RDS password"
+  value       = aws_secretsmanager_secret.a_rds_password_secret.name
+}
+
 /*
   ██████   ██████ ██████  
  ██       ██      ██   ██ 

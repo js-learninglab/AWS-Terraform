@@ -1,7 +1,9 @@
 ### MAIN PLAYBOOK ###
 
+
+### Play 1 is for Web servers:
 - name: Configure Web Servers
-  hosts: all
+  hosts: all:!*_a_prom_graf_server
   become: true
   
   tasks:
@@ -13,3 +15,10 @@
 
     - name: Import Node Exporter playbook
       import_tasks: nodeexporter.yml
+
+
+### Play 2 is for Prometheus/Grafana server:
+- import_playbook: deployprometheus.yml
+
+### Play 3 is for RDS client setup on web servers:
+- import_playbook: rdsclientsetup.yml

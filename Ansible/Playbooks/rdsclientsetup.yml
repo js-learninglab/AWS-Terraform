@@ -1,0 +1,45 @@
+### configure RDS client on the instance to connect to RDS database
+
+- name: Configure RDS Client
+  hosts: "*_a_web_servers*"
+  become: true
+
+  tasks:
+    - name: Verify PostgreSQL client installation
+      command: psql --version
+      register: psql_version
+      changed_when: false
+
+    - name: Display PostgreSQL client version
+      debug:
+        msg: "PostgreSQL client version: {{ psql_version.stdout }}"
+
+    - name: Retrieve RDS password from Secrets Manager
+      shell: |
+          aws secretsmanager get-secret-value \
+          --secret-id {{ rds_secret_name }} \
+          --region {{ aws_region }} \
+          --query SecretString \
+          --output text
+      register: rds_password_result
+      changed_when: false
+
+    #- name: Create .pgpass file for PostgreSQL authentication
+    #  copy:
+    #    dest: /home/ec2-user/.pgpass
+    #    content: "{{ rds_endpoint }}:5432:{{ rds_db_name }}:{{ rds_username }}:{{ rds_password_result.stdout }}"
+    #    owner: ec2-user
+    #    group: ec2-user
+    #    mode: '0600'
+
+    - name: Test connection to RDS PostgreSQL database
+      shell: psql -h {{ rds_endpoint }} -U {{ rds_username }} -d {{ rds_db_name }} -c "SELECT version();"
+      environment:
+        PGPASSWORD: "{{ rds_password_result.stdout }}"
+      become_user: ec2-user
+      register: db_test
+      changed_when: false
+
+    - name: Display database connection test result
+      debug:
+        msg: "Database connection test result: {{ db_test.stdout }}"

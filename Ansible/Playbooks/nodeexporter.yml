@@ -29,6 +29,7 @@
       src: /opt/node_exporter-1.7.0.linux-amd64/node_exporter
       dest: /usr/local/bin/node_exporter
       mode: '0755'
+      remote_src: yes
 
 # set ownership of node exporter binary
   - name: Set ownership of node_exporter binary
@@ -59,9 +60,8 @@
 
 # reload systemd to recognize new service
   - name: Reload systemd
-    command: systemctl daemon-reload
-    args:
-      warn: false
+    systemd:
+      daemon_reload: yes
 
 # enable and start node exporter service
   - name: Enable and start Node Exporter service
