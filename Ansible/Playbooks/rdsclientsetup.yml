@@ -4,9 +4,6 @@
   hosts: "*_a_web_servers"
   become: true
 
-  vars_files:
-    - "group_vars/all/rds_vars_{{ environment }}.yml"
-
   tasks:
     - name: Verify PostgreSQL client installation
       command: psql --version

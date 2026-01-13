@@ -1,3 +1,6 @@
+### not requiring anymore. This doesnt work because i am running terraform from cloud.check "
+
+/*
 resource "local_file" "ansible_rds_vars" {
   filename = "${path.root}/Ansible/group_vars/all/rds_vars_${var.environment}.yml"
 
@@ -9,3 +12,4 @@ resource "local_file" "ansible_rds_vars" {
     rds_username: "${aws_db_instance.a_rds_instance.username}"
   EOT
 }
+*/
