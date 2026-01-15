@@ -120,7 +120,10 @@ resource "aws_iam_role_policy" "a_allow_prom_graf_scrape_policy" {
           "ec2:DescribeInstances",
           "ec2:DescribeTags",
           "cloudwatch:GetMetricData",
-          "cloudwatch:ListMetrics"
+          "cloudwatch:ListMetrics",
+          "cloudwatch:GetMetricStatistics",
+          "tag:GetResources",
+          "rds:DescribeDBInstances"
         ]
         Effect   = "Allow"
         Resource = "*"
