@@ -183,6 +183,8 @@ resource "aws_instance" "a_prom_graf_server" {
 resource "aws_secretsmanager_secret" "a_rds_password_secret" {
   name = "${local.naming_prefix}-${var.environment}-rds-password-secret"
 
+  recovery_window_in_days = 0
+
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-rds-password-secret" })
 }
 

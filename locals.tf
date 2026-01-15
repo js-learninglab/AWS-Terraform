@@ -24,5 +24,5 @@ resource "random_integer" "random_number" {
 resource "random_password" "rds_password" {
   length           = 16
   special          = true
-  override_special = "_%@!$#"
+  override_special = "_%!$#"
 }
