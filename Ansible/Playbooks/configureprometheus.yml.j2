@@ -20,4 +20,10 @@ scrape_configs:
             values: ['running']
 
 
+### below here is for configuring prometheus to scrape from port 9106 for cloudwatch exporter
+  - job_name: 'cloudwatch_exporter'
+    static_configs:
+      - targets: ['localhost:9106']
+        labels:
+          environment: '{{ environment }}'
 

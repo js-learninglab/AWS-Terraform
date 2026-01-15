@@ -172,6 +172,7 @@ resource "aws_instance" "a_prom_graf_server" {
     ${file("./Templates/installpython.tpl")}
     ${file("./Templates/installprometheus.tpl")}
     ${file("./Templates/installgrafana.tpl")}
+    ${file("./Templates/installcloudwatchexporter.tpl")}
 
   EOF
 
