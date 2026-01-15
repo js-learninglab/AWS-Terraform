@@ -124,6 +124,14 @@ resource "aws_security_group" "a_prom_graf_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "Allow cloudwatch exporter port"
+    from_port   = var.aws_tcp_9106
+    to_port     = var.aws_tcp_9106
+    protocol    = var.aws_protocol_tcp
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     description = "Allow all outbound traffic"
     from_port   = var.aws_tcp_all

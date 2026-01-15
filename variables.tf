@@ -154,6 +154,12 @@ variable "aws_tcp_9100" {
   default     = 9100
 }
 
+variable "aws_tcp_9106" {
+  description = "The TCP port 9106 for cloudwatch exporter."
+  type        = number
+  default     = 9106
+}
+
 variable "aws_tcp_all" {
   description = "All TCP ports."
   type        = string
