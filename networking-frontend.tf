@@ -1,4 +1,5 @@
 #create aws vpc using module
+#this module is now serving as frontend networking
 module "aws_vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 6.5.0"

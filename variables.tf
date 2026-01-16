@@ -91,6 +91,12 @@ variable "aws_vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
+variable "aws_vpc_backend_cidr" {
+  description = "The cidr for the AWS backend VPC."
+  type        = string
+  default     = "10.1.0.0/16"
+}
+
 variable "juli_public_ip" {
   description = "a list of my public IP addresses for SSH access"
   type        = list(string)
