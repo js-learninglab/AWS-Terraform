@@ -5,7 +5,7 @@ module "aws_vpc_backend" {
 
   cidr = var.aws_vpc_backend_cidr
 
-  azs = slice(data.aws_availability_zones.available.names, 0, var.aws_web_subnet_count)
+  azs            = slice(data.aws_availability_zones.available.names, 0, var.aws_web_subnet_count)
   public_subnets = [for subnet in range(var.aws_web_subnet_count) : cidrsubnet(var.aws_vpc_backend_cidr, 8, subnet)]
 
   private_subnets = [for subnet in range(var.aws_web_subnet_count) : cidrsubnet(var.aws_vpc_backend_cidr, 8, subnet + 10)] #similar private subnets as the aws_vpc just to standardize

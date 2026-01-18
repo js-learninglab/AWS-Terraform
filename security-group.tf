@@ -89,7 +89,7 @@ resource "aws_security_group" "a_prom_graf_sg" {
   name        = "a_prom_graf_sg"
   description = "Allow HTTP and HTTPS inbound traffic"
   //vpc_id      = aws_vpc.a_vpc.id
-  vpc_id = module.aws_vpc.vpc_id
+  vpc_id = module.aws_vpc_backend.vpc_id
 
   ingress {
     description = "SSH from GitHub Actions and my IP"
@@ -149,7 +149,8 @@ resource "aws_security_group_rule" "a_prom_graf_sg_rule" {
   to_port                  = var.aws_tcp_9100
   protocol                 = var.aws_protocol_tcp
   security_group_id        = aws_security_group.a_web_sg.id
-  source_security_group_id = aws_security_group.a_prom_graf_sg.id
+  #source_security_group_id = aws_security_group.a_prom_graf_sg.id #need to disable this and change to cidr_blocks to allow rds access from backend vpc to frontend vpc
+  cidr_blocks              = ["10.1.0.0/16"]
   description              = "Allow Prometheus to scrape node exporter metrics"
 }
 
@@ -161,11 +162,12 @@ resource "aws_security_group" "a_rds_sg" {
   vpc_id      = module.aws_vpc_backend.vpc_id
 
   ingress {
-    description     = "PostgreSQL from web servers"
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = var.aws_protocol_tcp
-    security_groups = [aws_security_group.a_web_sg.id]
+    description = "PostgreSQL from web servers"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = var.aws_protocol_tcp
+    #security_groups = [aws_security_group.a_web_sg.id] #need to disable this and change to cidr_blocks to allow rds access from backend vpc to frontend vpc
+    cidr_blocks = ["10.0.0.0/16"]
   }
   egress {
     description = "Allow all outbound traffic"
