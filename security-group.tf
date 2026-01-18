@@ -158,7 +158,7 @@ resource "aws_security_group_rule" "a_prom_graf_sg_rule" {
 resource "aws_security_group" "a_rds_sg" {
   name        = "a_rds_sg"
   description = "Allow inbound traffic to RDS instance"
-  vpc_id      = module.aws_vpc.vpc_id
+  vpc_id      = module.aws_vpc_backend.vpc_id
 
   ingress {
     description     = "PostgreSQL from web servers"
