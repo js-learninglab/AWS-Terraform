@@ -144,14 +144,14 @@ resource "aws_security_group" "a_prom_graf_sg" {
 }
 
 resource "aws_security_group_rule" "a_prom_graf_sg_rule" {
-  type                     = "ingress"
-  from_port                = var.aws_tcp_9100
-  to_port                  = var.aws_tcp_9100
-  protocol                 = var.aws_protocol_tcp
-  security_group_id        = aws_security_group.a_web_sg.id
+  type              = "ingress"
+  from_port         = var.aws_tcp_9100
+  to_port           = var.aws_tcp_9100
+  protocol          = var.aws_protocol_tcp
+  security_group_id = aws_security_group.a_web_sg.id
   #source_security_group_id = aws_security_group.a_prom_graf_sg.id #need to disable this and change to cidr_blocks to allow rds access from backend vpc to frontend vpc
-  cidr_blocks              = ["10.1.0.0/16"]
-  description              = "Allow Prometheus to scrape node exporter metrics"
+  cidr_blocks = ["10.1.0.0/16"]
+  description = "Allow Prometheus to scrape node exporter metrics"
 }
 
 

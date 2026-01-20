@@ -2,31 +2,51 @@
 # i have 2 ALBs. 1 is a web sg and another is asg sg.check
 
 resource "aws_wafv2_web_acl" "a_web_lb_waf" {
-    name       = "${local.naming_prefix}-${var.environment}-web-lb-waf"
-    description = "WAF for web load balancer"
-    scope      = "REGIONAL" # CLOUDFRONT = global, REGIONAL = ALB, API Gateway, etc.
-    default_action {
-        allow {}
+  name        = "${local.naming_prefix}-${var.environment}-web-lb-waf"
+  description = "WAF for web load balancer"
+  scope       = "REGIONAL" # CLOUDFRONT = global, REGIONAL = ALB, API Gateway, etc.
+  default_action {
+    allow {}
+  }
+  rule {
+    name     = "AWS-AWSManagedRulesCommonRuleSet"
+    priority = 2
+    override_action {
+      count {}
     }
-    rule {
-        name     = "AWS-AWSManagedRulesCommonRuleSet"
-        priority = 1
-        override_action {
-            count {}
-        }
-        statement {
-            managed_rule_group_statement {
-                name        = "AWSManagedRulesCommonRuleSet"
-                vendor_name = "AWS"
-            }
-        }
-        visibility_config {
-            sampled_requests_enabled = true
-            cloudwatch_metrics_enabled = true
-            metric_name = "AWSManagedRulesCommonRuleSet"
-        }
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesCommonRuleSet"
+        vendor_name = "AWS"
+      }
     }
     visibility_config {
+      sampled_requests_enabled   = true
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AWSManagedRulesCommonRuleSet"
+    }
+  }
+
+  rule {
+    name     = "RateLimitRule"
+    priority = 1
+    action {
+      count {}
+    }
+
+    statement {
+      rate_based_statement {
+        limit              = 100 # limiting to 100 requests in 5 minute period
+        aggregate_key_type = "IP"
+      }
+    }
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "RateLimitRule"
+      sampled_requests_enabled   = true
+    }
+  }
+  visibility_config {
     cloudwatch_metrics_enabled = true
     metric_name                = "${local.naming_prefix}-waf-web-acl"
     sampled_requests_enabled   = true

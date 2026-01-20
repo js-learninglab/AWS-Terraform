@@ -2,9 +2,9 @@
 
 # create peering connection. Think of this is the bridge between two vpcs
 resource "aws_vpc_peering_connection" "a_vpc_peering" {
-  vpc_id        = module.aws_vpc.vpc_id                   #frontend vpc
-  peer_vpc_id   = module.aws_vpc_backend.vpc_id          #backend vpc
-  auto_accept   = true
+  vpc_id      = module.aws_vpc.vpc_id         #frontend vpc
+  peer_vpc_id = module.aws_vpc_backend.vpc_id #backend vpc
+  auto_accept = true
 
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-vpc-peering" })
 }
