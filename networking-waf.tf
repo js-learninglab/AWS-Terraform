@@ -52,6 +52,25 @@ resource "aws_wafv2_web_acl" "a_web_lb_waf" {
     sampled_requests_enabled   = true
   }
 
+  rule {
+    name     = "GeoBlockingRule"
+    priority = 0
+    action {
+      block {}
+    }
+
+    statement {
+      geo_match_statement {
+        country_codes = ["KP", "CN", "RU"] # example country codes to block ; North Korea, China, Russia
+      }
+    }
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "GeoBlockingRule"
+      sampled_requests_enabled   = true
+    }
+  }
+
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-web-lb-waf" })
 }
 
