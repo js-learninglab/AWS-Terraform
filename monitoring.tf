@@ -328,3 +328,4 @@ resource "aws_instance" "a_prom_graf_server" {
 
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-a-prom-graf-server" })
 }
+
