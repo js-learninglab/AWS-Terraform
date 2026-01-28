@@ -56,7 +56,7 @@ resource "aws_ecs_service" "a_ecs_service" {
   network_configuration {
     subnets          = module.aws_vpc.public_subnets
     security_groups  = [aws_security_group.ecs_web_sg.id]
-    assign_public_ip = aws_lb_target_group.ecs_web_lb_tg
+    assign_public_ip = true
   }
 
   load_balancer {
