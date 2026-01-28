@@ -81,7 +81,7 @@ output "a_rds_instance_secret_name" {
 
 output "repository_url" {
   description = "ECR repository URL"
-  value       = aws_ecr_repository.a_ecs_repo.repository_url
+  value       = aws_ecr_repository.a_ecr_repo.repository_url
 }
 
 output "ecr_repository_name" {
