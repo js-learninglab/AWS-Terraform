@@ -259,6 +259,12 @@ variable "aws_rds_backup_retention_period" {
   default     = 7
 }
 
+variable "ecs_container_image" {
+  description = "Docker Image for ECS containers"
+  type        = string
+  default     = "nginx:alpine"
+}
+
 /*
   ██████   ██████ ██████  
  ██       ██      ██   ██ 

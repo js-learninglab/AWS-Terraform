@@ -151,3 +151,73 @@ resource "aws_iam_role_policy" "a_allow_web_servers_secrets_manager_policy" {
     ]
   })
 }
+
+### create iam role for ecs tasks execution role
+resource "aws_iam_role" "a_ecs_task_execution_role" {
+  name = "${local.naming_prefix}-${var.environment}-ecs-task-execution-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-a_ecs_task_execution_role"
+  })
+}
+
+### attaching the policy to the task execution policy
+resource "aws_iam_role_policy_attachment" "a_ecs_task_execution_role_policy_attachment" {
+  role       = aws_iam_role.a_ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+
+### create iam role for ECS task (this is for application permissions)
+resource "aws_iam_role" "a_ecs_task_role" {
+  name = "${local.naming_prefix}-${var.environment}-ecs-task-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-a_ecs_task_role"
+  })
+}
+
+### Create policy for the task to access S3 bucket
+resource "aws_iam_role_policy" "a_ecs_task_s3_access_policy" {
+  name = "a_ecs_task_s3_access_policy"
+  role = aws_iam_role.a_ecs_task_role.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ]
+        Effect = "Allow"
+        Resource = [
+          "arn:aws:s3:::${local.s3_bucket_name}",
+          "arn:aws:s3:::${local.s3_bucket_name}/*"
+        ]
+      }
+    ]
+  })
+}

@@ -302,6 +302,19 @@ resource "aws_cloudwatch_log_group" "aws_cloudwatch_error_log_group" {
   )
 }
 
+resource "aws_cloudwatch_log_group" "aws_ecs_cluster_log_group" {
+  name              = "/ecs/${aws_ecs_cluster.main.name}"
+  retention_in_days = 7
+
+  tags = merge(
+    local.common_tags,
+    {
+      Environment = var.environment
+      Name        = "${local.naming_prefix}-${var.environment}-ecs-cluster-log-group"
+    }
+  )
+}
+
 # create virtual machine for prometheus and grafana monitoring
 resource "aws_instance" "a_prom_graf_server" {
   ami                         = data.aws_ami.linux.id

@@ -178,3 +178,92 @@ resource "aws_security_group" "a_rds_sg" {
   }
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-rds-sg" })
 }
+
+# cloning this security group for ecs setup
+resource "aws_security_group" "ecs_web_sg" {
+  name        = "ecs_web_sg"
+  description = "Allow HTTP and HTTPS inbound traffic"
+  //vpc_id      = aws_vpc.a_vpc.id
+  vpc_id = module.aws_vpc.vpc_id
+
+  ingress {
+    description = "HTTP from ecs lb"
+    from_port   = var.aws_tcp_80
+    to_port     = var.aws_tcp_80
+    protocol    = var.aws_protocol_tcp
+    #cidr_blocks     = ["10.0.0.0/16"] #restricting to ecs lb sg only
+    security_groups = [aws_security_group.ecs_web_lb_sg.id]
+  }
+
+  # container doesn't support https
+  /* ingress {
+    description = "HTTPS from anywhere"
+    from_port   = var.aws_tcp_443
+    to_port     = var.aws_tcp_443
+    protocol    = var.aws_protocol_tcp
+    cidr_blocks = ["0.0.0.0/0"]
+  } */
+
+  # removing this for now as not required
+  #not liking this, seems like a backdoor
+  # container doesn't have ssh
+  /*
+  ingress {
+    description = "SSH from GitHub Actions and my IP"
+    from_port   = var.aws_tcp_22
+    to_port     = var.aws_tcp_22
+    protocol    = var.aws_protocol_tcp
+    cidr_blocks = ["0.0.0.0/0"]
+    /*cidr_blocks = concat(
+      var.juli_public_ip, # my public IPs
+      [
+        "4.175.114.0/24", # GitHub Actions
+        "13.64.0.0/11",   # GitHub Actions
+        "20.0.0.0/8",     # GitHub Actions (Azure)
+        "40.64.0.0/10",   # GitHub Actions (Azure)
+      ]
+    )
+  }*/
+
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = var.aws_tcp_all
+    to_port     = var.aws_tcp_all
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-sg" })
+}
+
+resource "aws_security_group" "ecs_web_lb_sg" {
+  name        = "ecs_web_lb_sg"
+  description = "Allow HTTP  and HTTPS inbound traffic"
+  vpc_id      = module.aws_vpc.vpc_id
+
+  ingress {
+    description = "HTTP from anywhere"
+    from_port   = var.aws_tcp_80
+    to_port     = var.aws_tcp_80
+    protocol    = var.aws_protocol_tcp
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS from anywhere"
+    from_port   = var.aws_tcp_443
+    to_port     = var.aws_tcp_443
+    protocol    = var.aws_protocol_tcp
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = var.aws_tcp_all
+    to_port     = var.aws_tcp_all
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-lb-sg" })
+}
