@@ -1,5 +1,5 @@
 ### Configure ECS Cluster
-resource "aws_ecs_cluster" "main" {
+resource "aws_ecs_cluster" "a_ecs_cluster" {
   name = "${local.naming_prefix}-${var.environment}-ecs-cluster"
   setting {
     name  = "containerInsights"
@@ -44,4 +44,27 @@ resource "aws_ecs_task_definition" "a_ecs_task_definition" {
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-ecs-task-def" })
 }
 
+
+### create ecs service
+resource "aws_ecs_service" "a_ecs_service" {
+  name            = "${local.naming_prefix}-${var.environment}-ecs-service"
+  cluster         = aws_ecs_cluster.a_ecs_cluster.id
+  task_definition = aws_ecs_task_definition.a_ecs_task_definition.arn
+  desired_count   = 2
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = module.aws_vpc.public_subnets
+    security_groups  = [aws_security_group.ecs_web_sg.id]
+    assign_public_ip = aws_lb_target_group.ecs_web_lb_tg
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.ecs_web_lb_tg.arn
+    container_name   = "nginx-container"
+    container_port   = var.aws_tcp_80
+  }
+
+  depends_on = [aws_lb_listener.ecs_web_lb_listener]
+}
 
