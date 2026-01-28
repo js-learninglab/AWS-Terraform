@@ -303,7 +303,7 @@ resource "aws_cloudwatch_log_group" "aws_cloudwatch_error_log_group" {
 }
 
 resource "aws_cloudwatch_log_group" "aws_ecs_cluster_log_group" {
-  name              = "/ecs/${aws_ecs_cluster.main.name}"
+  name              = "/ecs/${aws_ecs_cluster.a_ecs_cluster.name}"
   retention_in_days = 7
 
   tags = merge(
