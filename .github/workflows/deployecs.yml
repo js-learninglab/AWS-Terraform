@@ -1,0 +1,79 @@
+### bnow that we have the dockerfile lets build the image and push it to ECR
+name: 'ECS build and Deploy'
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - AWS-Terraform-dev
+          - AWS-Terraform-prod
+
+permissions:
+  contents: read
+
+jobs:
+    build-and-deploy:
+      name: 'Build and Deploy to ECS'
+      runs-on: ubuntu-latest
+      environment: ${{ github.event.inputs.environment == 'AWS-Terraform-dev' && 'development' || 'production' }}
+  
+      defaults:
+        run:
+          shell: bash
+  
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+  
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v2
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-west-2
+  
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v1
+  
+        - name: Set environment suffix
+          id: env-suffix
+          run: |
+            if [ "${{ github.event.inputs.environment }}" == "AWS-Terraform-dev" ]; then
+              echo "ENV_SUFFIX=-dev" >> $GITHUB_ENV
+            else
+              echo "ENV_SUFFIX=-prod" >> $GITHUB_ENV
+            fi
+  
+        - name: Build Docker image
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY: jslearninglab-ecr-repo
+            IMAGE_TAG: ${{ steps.env-suffix.outputs.ENV_SUFFIX }}
+          run: |
+            echo "Pushing image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            echo "Image pushed successfully to ECR"
+  
+        - name: Deploy to ECS
+          env:
+            CLUSTER_NAME: JSLearningLab-${{ steps.env-suffix.outputs.ENV_SUFFIX }}-ecs-cluster
+            SERVICE_NAME: jslearninglab-${{ steps.env-suffix.outputs.ENV_SUFFIX }}-ecs-service
+          run: |
+            echo "Deploying to ECS:"
+            echo "Cluster: $CLUSTER_NAME"
+            echo "Service: $SERVICE_NAME"
+  
+            aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --force-new-deployment --region us-west-2
+  
+            echo "ECS service update initiated successfully"
+            echo "Waiting for service to stabilize..."
+  
+            aws ecs wait services-stable --cluster $CLUSTER_NAME --services $SERVICE_NAME --region us-west-2
+  
+            echo "Deployment complete!"
+        
