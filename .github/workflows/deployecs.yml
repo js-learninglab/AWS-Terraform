@@ -32,8 +32,8 @@ jobs:
         - name: Configure AWS Credentials
           uses: aws-actions/configure-aws-credentials@v2
           with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
             aws-region: us-west-2
   
         - name: Login to Amazon ECR
@@ -44,25 +44,35 @@ jobs:
           id: env-suffix
           run: |
             if [ "${{ github.event.inputs.environment }}" == "AWS-Terraform-dev" ]; then
-              echo "ENV_SUFFIX=-dev" >> $GITHUB_ENV
+              echo "ENV_SUFFIX=dev" >> $GITHUB_ENV
             else
-              echo "ENV_SUFFIX=-prod" >> $GITHUB_ENV
+              echo "ENV_SUFFIX=prod" >> $GITHUB_ENV
             fi
   
         - name: Build Docker image
           env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
             ECR_REPOSITORY: jslearninglab-ecr-repo
-            IMAGE_TAG: ${{ steps.env-suffix.outputs.ENV_SUFFIX }}
+            IMAGE_TAG: ${{ env.ENV_SUFFIX }}
           run: |
-            echo "Pushing image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+            echo "Building image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+            echo "Image built successfully"
+
+        - name: Push Docker image to ECR
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY: jslearninglab-ecr-repo
+            IMAGE_TAG: ${{ env.ENV_SUFFIX }}
+          run: |
+            echo "Pushing image to ECR: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-            echo "Image pushed successfully to ECR"
+            echo "Image pushed successfully"
   
         - name: Deploy to ECS
           env:
-            CLUSTER_NAME: JSLearningLab-${{ steps.env-suffix.outputs.ENV_SUFFIX }}-ecs-cluster
-            SERVICE_NAME: jslearninglab-${{ steps.env-suffix.outputs.ENV_SUFFIX }}-ecs-service
+            CLUSTER_NAME: JSLearningLab-${{ env.ENV_SUFFIX }}-ecs-cluster
+            SERVICE_NAME: JSLearningLab-${{ env.ENV_SUFFIX }}-ecs-service
           run: |
             echo "Deploying to ECS:"
             echo "Cluster: $CLUSTER_NAME"
