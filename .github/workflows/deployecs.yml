@@ -114,7 +114,7 @@ jobs:
             echo "Cluster: $CLUSTER_NAME"
             echo "Service: $SERVICE_NAME"
   
-            aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --force-new-deployment --region us-west-2
+            aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --task-definition $TASK_FAMILY:${{ env.TASK_REVISION }} --region us-west-2
   
             echo "ECS service update initiated successfully"
             echo "Waiting for service to stabilize..."
