@@ -91,6 +91,12 @@ variable "aws_vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
+variable "aws_vpc_backend_cidr" {
+  description = "The cidr for the AWS backend VPC."
+  type        = string
+  default     = "10.1.0.0/16"
+}
+
 variable "juli_public_ip" {
   description = "a list of my public IP addresses for SSH access"
   type        = list(string)
@@ -152,6 +158,12 @@ variable "aws_tcp_9100" {
   description = "The TCP port 9100 for Prometheus to scrape metrics."
   type        = number
   default     = 9100
+}
+
+variable "aws_tcp_9106" {
+  description = "The TCP port 9106 for cloudwatch exporter."
+  type        = number
+  default     = 9106
 }
 
 variable "aws_tcp_all" {
@@ -245,6 +257,12 @@ variable "aws_rds_backup_retention_period" {
   description = "The backup retention period for the RDS instance in days."
   type        = number
   default     = 7
+}
+
+variable "ecs_container_image" {
+  description = "Docker Image for ECS containers"
+  type        = string
+  default     = "nginx:alpine"
 }
 
 /*

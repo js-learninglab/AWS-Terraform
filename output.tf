@@ -79,6 +79,15 @@ output "a_rds_instance_secret_name" {
   value       = aws_secretsmanager_secret.a_rds_password_secret.name
 }
 
+output "repository_url" {
+  description = "ECR repository URL"
+  value       = aws_ecr_repository.a_ecr_repo.repository_url
+}
+
+output "ecr_repository_name" {
+  description = "ECR repository name"
+  value       = aws_ecr_repository.a_ecr_repo.name
+}
 /*
   ██████   ██████ ██████  
  ██       ██      ██   ██ 

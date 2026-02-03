@@ -1,7 +1,7 @@
 # create db subnet group for aws rds instance
 resource "aws_db_subnet_group" "a_rds_subnet_group" {
   name       = "a_rds_subnet_group"
-  subnet_ids = module.aws_vpc.private_subnets
+  subnet_ids = module.aws_vpc_backend.private_subnets
 
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-rds-subnet-group" })
 }

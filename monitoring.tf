@@ -301,3 +301,44 @@ resource "aws_cloudwatch_log_group" "aws_cloudwatch_error_log_group" {
     }
   )
 }
+
+resource "aws_cloudwatch_log_group" "aws_ecs_cluster_log_group" {
+  name              = "/ecs/${aws_ecs_cluster.a_ecs_cluster.name}"
+  retention_in_days = 7
+
+  tags = merge(
+    local.common_tags,
+    {
+      Environment = var.environment
+      Name        = "${local.naming_prefix}-${var.environment}-ecs-cluster-log-group"
+    }
+  )
+}
+
+# create virtual machine for prometheus and grafana monitoring
+resource "aws_instance" "a_prom_graf_server" {
+  ami                         = data.aws_ami.linux.id
+  instance_type               = "t2.small"                               #this instance might require more resources hence not t2.micro
+  subnet_id                   = module.aws_vpc_backend.public_subnets[0] #placing in first subnet since it is just one instance
+  key_name                    = aws_key_pair.a_ec2_ssh_key.key_name
+  vpc_security_group_ids      = [aws_security_group.a_prom_graf_sg.id]
+  associate_public_ip_address = true
+  iam_instance_profile        = aws_iam_instance_profile.a_allow_prom_graf_scrape_profile.name
+
+  # need to add more disk because logs say "no space left on device"
+  root_block_device {
+    volume_size = 20 # 20GB instead of default 8GB
+    volume_type = "gp3"
+  }
+
+  user_data = <<-EOF
+    ${file("./Templates/installpython.tpl")}
+    ${file("./Templates/installprometheus.tpl")}
+    ${file("./Templates/installgrafana.tpl")}
+    ${file("./Templates/installcloudwatchexporter.tpl")}
+
+  EOF
+
+  tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-a-prom-graf-server" })
+}
+

@@ -22,7 +22,8 @@ resource "aws_s3_bucket_policy" "a_s3_bucket_policy" {
         }
         Resource = [
           "arn:aws:s3:::${local.s3_bucket_name}/a-web-lb-logs/*",
-          "arn:aws:s3:::${local.s3_bucket_name}/asg-web-lb-logs/*"
+          "arn:aws:s3:::${local.s3_bucket_name}/asg-web-lb-logs/*",
+          "arn:aws:s3:::${local.s3_bucket_name}/ecs-web-lb-logs/*"
         ]
       },
       {
