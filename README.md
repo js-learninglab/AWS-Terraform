@@ -1,3 +1,250 @@
+# AWS-Terraform Infrastructure Learning Lab
+
+![Terraform](https://img.shields.io/badge/Terraform-1.13+-purple?logo=terraform)
+![AWS](https://img.shields.io/badge/AWS-Cloud-orange?logo=amazon-aws)
+![Build Status](https://github.com/js_learninglab_hcp/AWS-Terraform/workflows/Terraform%20dev/badge.svg)
+
+> Production-quality AWS infrastructure featuring EC2, ECS, RDS, Auto Scaling, comprehensive monitoring with Prometheus/Grafana, and complete CI/CD automation.
+
+## 📖 Table of Contents
+
+- [Architecture](#architecture)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [Infrastructure Components](#infrastructure-components)
+- [Environments](#environments)
+- [Monitoring](#monitoring)
+- [CI/CD Pipeline](#cicd-pipeline)
+- [Cost Management](#cost-management)
+- [Troubleshooting](#troubleshooting)
+
+## 🏗️ Architecture
+
+### Frontend VPC (10.0.0.0/16)
+```mermaid
+graph TB
+    subgraph Internet
+        Users[Users/Traffic]
+    end
+
+    subgraph FrontendVPC["Frontend VPC (10.0.0.0/16)"]
+        subgraph PublicSubnets["Public Subnets"]
+            ALB[Application Load Balancer]
+            ASGLB[ASG Load Balancer]
+            ECSLB[ECS Load Balancer]
+            
+            subgraph EC2["EC2 Web Servers"]
+                WS1[Web Server 1<br/>Nginx + Monitoring]
+                WS2[Web Server 2<br/>Nginx + Monitoring]
+            end
+            
+            ASG[Auto Scaling Group<br/>Min:1 Max:4]
+            
+            PromGraf[Prometheus/Grafana<br/>Monitoring Server]
+        end
+        
+        subgraph PrivateSubnets["Private Subnets"]
+            RDS[(PostgreSQL RDS<br/>db.t3.micro)]
+        end
+    end
+    
+    subgraph BackendVPC["Backend VPC (10.1.0.0/16)"]
+        ECS[ECS Fargate<br/>Container Service]
+    end
+    
+    subgraph AWS["AWS Services"]
+        S3[S3 Bucket]
+        ECR[ECR Repository]
+        Secrets[Secrets Manager]
+        CW[CloudWatch]
+        WAF[WAF v2]
+    end
+
+    Users -->|HTTP/HTTPS| WAF
+    WAF --> ALB
+    WAF --> ASGLB
+    WAF --> ECSLB
+    
+    ALB --> WS1
+    ALB --> WS2
+    ASGLB --> ASG
+    ECSLB --> ECS
+    
+    WS1 --> RDS
+    WS2 --> RDS
+    ASG --> RDS
+    
+    FrontendVPC -.->|VPC Peering| BackendVPC
+    
+    style WAF fill:#DD344C
+    style RDS fill:#527FFF
+    style S3 fill:#569A31
+    style ECR fill:#FF9900
+```
+
+## ✨ Features
+
+### Infrastructure
+- **Multi-VPC Architecture**: Separate frontend (10.0.0.0/16) and backend (10.1.0.0/16) VPCs with peering
+- **High Availability**: Multi-AZ deployment across us-west-2a, us-west-2b
+- **Auto Scaling**: Dynamic scaling based on CPU metrics (1-4 instances)
+- **Container Orchestration**: ECS with Fargate for serverless containers
+- **Load Balancing**: 3 Application Load Balancers (static EC2, ASG, ECS)
+
+### Security
+- **WAF Protection**: AWS WAF v2 with managed rule sets and rate limiting
+- **Private Subnets**: RDS isolated in private subnets
+- **Secrets Management**: RDS passwords stored in AWS Secrets Manager
+- **Security Groups**: Least-privilege access controls
+- **Encrypted Storage**: S3 and RDS encryption at rest
+
+### Monitoring
+- **Prometheus**: Metrics collection with EC2 service discovery
+- **Grafana**: Custom dashboards for visualization
+- **CloudWatch**: Logs, metrics, alarms, and dashboards
+- **Node Exporter**: Host-level metrics on all EC2 instances
+- **CloudWatch Exporter**: RDS metrics integration
+
+### CI/CD
+- **GitHub Actions**: Automated Terraform validation and deployment
+- **Terraform Cloud**: Remote state management with workspaces
+- **Ansible Automation**: Server configuration management
+- **Sentinel Policies**: Governance and compliance checks
+
+## 🛠️ Tech Stack
+
+**Infrastructure as Code:**
+- Terraform 1.13+ with Terraform Cloud
+- Terraform AWS VPC Module 6.5.0
+- Terraform AWS S3 Module 5.8.0
+
+**AWS Services:**
+- **Compute**: EC2 (t2.micro/t2.small), Auto Scaling, ECS Fargate
+- **Networking**: VPC, Subnets, Internet Gateway, NAT Gateway, VPC Peering
+- **Load Balancing**: Application Load Balancer (3 instances)
+- **Database**: RDS PostgreSQL 15 (db.t3.micro, 20GB)
+- **Storage**: S3, ECR
+- **Security**: WAF v2, Security Groups, Secrets Manager, IAM
+- **Monitoring**: CloudWatch (Logs, Metrics, Alarms, Dashboards)
+
+**Configuration Management:**
+- Ansible 2.15+ with AWS EC2 dynamic inventory
+- Playbooks: Nginx, CloudWatch Agent, Node Exporter, PostgreSQL client
+
+**Monitoring Stack:**
+- Prometheus 3.8.1 (EC2 service discovery)
+- Grafana (visualization and alerting)
+- Node Exporter 1.7.0
+- CloudWatch Exporter (RDS metrics)
+
+**Containerization:**
+- Docker
+- Amazon ECR (private registry)
+- Amazon ECS with Fargate
+
+## 📋 Prerequisites
+
+### Required Tools
+
+```bash
+# Terraform
+terraform --version  # >= 1.13
+
+# AWS CLI
+aws --version  # >= 2.0
+
+# Ansible
+ansible --version  # >= 2.15
+ansible-galaxy collection install amazon.aws
+
+# Python with boto3
+python3 --version  # >= 3.9
+pip install boto3 botocore
+
+# Docker (for ECS deployments)
+docker --version  # >= 20.10
+```
+
+### Required Credentials
+
+1. **AWS Credentials**
+   ```bash
+   export AWS_ACCESS_KEY_ID="your_key"
+   export AWS_SECRET_ACCESS_KEY="your_secret"
+   export AWS_DEFAULT_REGION="us-west-2"
+   ```
+
+2. **Terraform Cloud**
+   - Organization: `js_learninglab_hcp`
+   - Workspaces: `AWS-Terraform-dev`, `AWS-Terraform-prod`
+   - API Token: Generate from https://app.terraform.io
+
+3. **SSH Key Pair**
+   ```bash
+   ssh-keygen -t rsa -b 4096
+   export TF_VAR_ec2_ssh_public_key="$(cat ~/.ssh/id_rsa.pub)"
+   ```
+
+## 🚀 Quick Start
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/js_learninglab_hcp/AWS-Terraform.git
+cd AWS-Terraform
+```
+
+### 2. Initialize Terraform
+```bash
+terraform init
+```
+
+### 3. Select Workspace
+```bash
+# For dev
+terraform workspace select AWS-Terraform-dev
+
+# For prod
+terraform workspace select AWS-Terraform-prod
+```
+
+### 4. Deploy Infrastructure
+```bash
+# Review changes
+terraform plan -var-file=dev.tfvars
+
+# Apply
+terraform apply -var-file=dev.tfvars
+
+# Get outputs
+terraform output
+```
+
+### 5. Configure with Ansible
+```bash
+cd Ansible
+
+# Run playbook
+ansible-playbook -i Inventory/aws_ec2.yml Playbooks/site.yml \
+  -e "s3_bucket_name=$(terraform output -raw a_s3_bucket_name)" \
+  -e "environment=dev"
+```
+
+### 6. Access Services
+```bash
+# Web Application
+echo "http://$(terraform output -raw a_web_lb_dns_name)"
+
+# Prometheus
+terraform output a_prometheus_url
+
+# Grafana  
+terraform output a_grafana_url
+```
+
+## 📦 Infrastructure Components
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -180,3 +427,211 @@
 | <a name="output_ecr_repository_name"></a> [ecr\_repository\_name](#output\_ecr\_repository\_name) | ECR repository name |
 | <a name="output_repository_url"></a> [repository\_url](#output\_repository\_url) | ECR repository URL |
 <!-- END_TF_DOCS -->
+
+## 🌍 Environments
+
+### Dev Environment
+- **Workspace**: `AWS-Terraform-dev`
+- **Config**: `dev.tfvars`
+- **Purpose**: Development and testing
+- **Instance Type**: `t2.micro`
+- **Cost**: Destroyed daily to save costs
+
+### Prod Environment
+- **Workspace**: `AWS-Terraform-prod`
+- **Config**: `prod.tfvars`
+- **Purpose**: Production workloads
+- **Instance Type**: `t2.micro` (upgradeable)
+- **High Availability**: Multi-AZ, persistent
+
+## 📊 Monitoring
+
+### Prometheus (Port 9090)
+- **Metrics Collection**: 15-second intervals
+- **Service Discovery**: AWS EC2 tags
+- **Exporters**: Node Exporter (host), CloudWatch Exporter (RDS)
+- **Retention**: 15 days
+
+### Grafana (Port 3000)
+- **Default Login**: admin/admin
+- **Data Sources**: Prometheus, CloudWatch
+- **Dashboards**: EC2, RDS, ALB metrics
+- **Alerting**: Email notifications via SNS
+
+### CloudWatch
+- **Log Groups**: Nginx access/error (7-day retention)
+- **Metrics**: CPU, disk, network, application errors
+- **Alarms**:
+  - High CPU (>50%)
+  - Unhealthy targets
+  - 5XX errors (>10)
+  - 404/500 error rates (>5/5min)
+  - Slow response time (>2s)
+- **Dashboard**: Real-time metrics visualization
+
+## 🔄 CI/CD Pipeline
+
+### Workflows
+
+**Terraform Dev** (on push to `dev`)
+- Checkout → Init → Format → Validate
+- Uses workspace: `AWS-Terraform-dev`
+
+**Terraform Prod** (on push to `main`)
+- Checkout → Init → Format → Validate  
+- Uses workspace: `AWS-Terraform-prod`
+
+**Ansible Deploy** (manual trigger)
+- Select environment (dev/prod)
+- Fetch Terraform outputs
+- Configure servers:
+  - Install Nginx
+  - Setup CloudWatch Agent
+  - Deploy Node Exporter
+  - Configure PostgreSQL client
+  - Deploy Prometheus config
+
+### Sentinel Policies
+- **restrict-ec2-instance-type**: Advisory enforcement
+- Validates instance types against approved list
+
+## 💰 Cost Management
+
+### Monthly Estimates (24/7 operation)
+
+| Service | Config | Cost |
+|---------|--------|------|
+| EC2 (3x t2.micro + 1x t2.small) | Web + Monitoring | ~$30 |
+| Auto Scaling (0-4x t2.micro) | Variable | ~$0-30 |
+| RDS (db.t3.micro) | PostgreSQL | ~$15 |
+| NAT Gateway (2x) | Multi-AZ | ~$64 |
+| ALB (3x) | Load Balancers | ~$48 |
+| S3 + Data Transfer | Storage | ~$5 |
+| ECS Fargate | Containers (when used) | Variable |
+| **Total (max)** | | **~$162-192/month** |
+
+### Cost Savings
+✅ Destroy infrastructure daily ($0/night)  
+✅ Use t2.micro free tier eligible  
+✅ Disable NAT Gateways when not needed  
+✅ Short CloudWatch log retention  
+✅ Lifecycle policies for ECR images  
+
+## 🐛 Troubleshooting
+
+### Terraform Issues
+
+**State Lock:**
+```bash
+terraform force-unlock <LOCK_ID>
+```
+
+**Provider Conflicts:**
+```bash
+terraform init -upgrade
+```
+
+### Ansible Issues
+
+**SSH Timeout:**
+- Verify security group allows GitHub Actions IPs
+- Check EC2 instances are running
+- Verify SSH key matches
+
+**Empty Inventory:**
+```bash
+# Test inventory
+ansible-inventory -i Inventory/aws_ec2.yml --graph
+
+# Verify AWS credentials
+aws ec2 describe-instances --region us-west-2
+```
+
+### Application Issues
+
+**502 Bad Gateway:**
+1. Check ALB target health
+2. Verify security groups
+3. Check Nginx: `sudo systemctl status nginx`
+4. Review logs: `sudo journalctl -u nginx`
+
+**RDS Connection Failed:**
+1. Verify security group allows EC2 → RDS (5432)
+2. Check RDS in private subnet
+3. Test: `psql -h <endpoint> -U JSDBadmin -d jslearninglabdb`
+4. Verify Secrets Manager password
+
+**ECS Tasks Not Starting:**
+1. Check ECR image exists
+2. Verify task role has ECR permissions
+3. Check CloudWatch logs: `/ecs/<cluster>/<task>`
+4. Verify security groups allow ALB → ECS
+
+## 📁 Project Structure
+
+```
+AWS-Terraform/
+├── .github/workflows/          # CI/CD pipelines
+├── Ansible/                    # Configuration management
+│   ├── Inventory/             # Dynamic inventory
+│   └── Playbooks/             # Ansible playbooks
+├── Policy/                     # Sentinel policies
+├── Templates/                  # User data scripts
+├── website/                    # Static content
+├── main.tf                     # Main resources
+├── variables.tf                # Variable definitions
+├── outputs.tf                  # Output values
+├── locals.tf                   # Local values
+├── terraform.tf                # Provider config
+├── networking.tf               # VPC resources
+├── security-group.tf           # Security groups
+├── iam.tf                      # IAM roles/policies
+├── database.tf                 # RDS configuration
+├── monitoring.tf               # CloudWatch resources
+├── autoscaling.tf              # ASG configuration
+├── Loadbalancer.tf             # ALB resources
+├── ecs.tf                      # ECS/Fargate
+├── waf.tf                      # WAF configuration
+├── dev.tfvars                  # Dev variables
+└── prod.tfvars                 # Prod variables
+```
+
+## 🎓 Learning Journey
+
+This project demonstrates:
+- ✅ Multi-VPC architecture with peering
+- ✅ ECS container orchestration
+- ✅ Comprehensive monitoring stack
+- ✅ WAF security implementation
+- ✅ Auto Scaling with CloudWatch
+- ✅ CI/CD automation
+- ✅ Infrastructure as Code best practices
+
+## 🎯 Roadmap
+
+- [x] EC2 + Auto Scaling
+- [x] RDS PostgreSQL
+- [x] Prometheus + Grafana
+- [x] ECS + Fargate
+- [x] WAF Protection
+- [x] VPC Peering
+- [ ] Multi-region deployment
+- [ ] Route53 + ACM (SSL/TLS)
+- [ ] Advanced Grafana dashboards
+- [ ] Backup and DR strategy
+- [ ] AWS Solutions Architect cert
+
+## 📝 License
+
+Educational project - JS Learning Lab
+
+## 👤 Author
+
+**Juli** - js_learninglab_hcp  
+DevOps Learning Journey
+
+---
+
+⭐ **Star this repo if you found it helpful!**
+
+*Last updated: Auto-generated by terraform-docs*
