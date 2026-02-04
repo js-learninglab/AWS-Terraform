@@ -68,7 +68,43 @@ jobs:
             echo "Pushing image to ECR: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
             echo "Image pushed successfully"
-  
+
+        - name: Download current task definition
+          env:
+            TASK_FAMILY: JSLearningLab-${{ env.ENV_SUFFIX }}-ecs-web-app
+          run: |
+            echo "Downloading task definition: $TASK_FAMILY"
+            aws ecs describe-task-definition \
+              --task-definition $TASK_FAMILY \
+              --query taskDefinition \
+              --region us-west-2 > task-def.json
+            echo "Task definition downloaded"
+
+        - name: Update task definition with new image
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY: jslearninglab-ecr-repo
+            IMAGE_TAG: ${{ env.ENV_SUFFIX }}
+          run: |
+            NEW_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+            echo "Updating task definition to use image: $NEW_IMAGE"
+        
+            cat task-def.json | jq --arg IMAGE "$NEW_IMAGE" '.containerDefinitions[0].image = $IMAGE | 
+            del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' > new-task-def.json
+        
+            echo "Task definition updated"
+
+        - name: Register new task definition
+          run: |
+            echo "Registering new task definition revision"
+            NEW_TASK_INFO=$(aws ecs register-task-definition \
+            --cli-input-json file://new-task-def.json \
+            --region us-west-2)
+        
+            NEW_REVISION=$(echo $NEW_TASK_INFO | jq -r '.taskDefinition.revision')
+            echo "Created task definition revision: $NEW_REVISION"
+            echo "TASK_REVISION=$NEW_REVISION" >> $GITHUB_ENV
+
         - name: Deploy to ECS
           env:
             CLUSTER_NAME: JSLearningLab-${{ env.ENV_SUFFIX }}-ecs-cluster
@@ -77,8 +113,9 @@ jobs:
             echo "Deploying to ECS:"
             echo "Cluster: $CLUSTER_NAME"
             echo "Service: $SERVICE_NAME"
+            echo "Task Definition: $TASK_FAMILY:${{ env.TASK_REVISION }}"
   
-            aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --force-new-deployment --region us-west-2
+            aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --task-definition $TASK_FAMILY:${{ env.TASK_REVISION }} --region us-west-2
   
             echo "ECS service update initiated successfully"
             echo "Waiting for service to stabilize..."

@@ -23,7 +23,8 @@ resource "aws_ecs_task_definition" "a_ecs_task_definition" {
     [
       {
         name      = "nginx-container"
-        image     = var.ecs_container_image
+        image = "nginx:alpine"
+        # image     = var.ecs_container_image #unable to use variable as it will get stacked over
         essential = true
         portMappings = [
           {
@@ -41,6 +42,11 @@ resource "aws_ecs_task_definition" "a_ecs_task_definition" {
         }
       }
   ])
+  
+  lifecycle {
+    ignore_changes = [container_definitions] ### add this so that terraform dont manage it after initial creation and i will use github actions to update task definitions
+  }
+  
   tags = merge(local.common_tags, { Name = "${local.naming_prefix}-${var.environment}-ecs-task-def" })
 }
 
