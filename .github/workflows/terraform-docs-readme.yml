@@ -1,0 +1,37 @@
+name: Update README with Terraform Docs
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - '**.tf'
+      - '**.tfvars'
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Render terraform docs
+        uses: terraform-docs/gh-actions@v1.2.0
+        with:
+          working-dir: .
+          output-file: README.md
+          output-method: inject
+          args: --sort-by required
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: auto-update README with terraform-docs [skip ci]"
+          file_pattern: README.md
