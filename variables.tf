@@ -4,14 +4,14 @@
 /*
 variable "aws_access_key" {
   type = string
-  #access_key = "AKIAVC6Z7YLRPWISHIZR"
+  #access_key = ""
   description = "AWS access key"
   sensitive =  true
 }
 
 variable "aws_secret_key" {
   type = string
-  #secret_key = "7ucvDQOrPZIuU/Y8ZEH7wpp3akvWDJKBufB215U5"
+  #secret_key = ""
   description = "AWS secret key"
   sensitive =  true
   #credentials are specified in $env
